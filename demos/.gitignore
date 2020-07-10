@@ -1,0 +1,4 @@
+*.o
+main
+record-*.ppm
+*.mp4
