@@ -1,0 +1,32 @@
+#Версия документа
+
+    uint version
+
+# Имена текстур (краткий слаг) текстуры могут запрашиваться с сервера
+
+    0 bricks
+    ...
+
+# Шейдеры
+
+    0 shadername
+    ..
+
+# Вершины
+
+    int count
+    float x y z
+    ...
+
+# Нормали
+
+    int count
+    float x y z
+    ...
+
+# Грани или треугольники
+
+    int count 
+    int verticles_count
+    a b c [d]
+    ...

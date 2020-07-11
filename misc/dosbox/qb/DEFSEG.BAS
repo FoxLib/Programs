@@ -1,0 +1,11 @@
+CLS
+
+PRINT 320! * 480!
+CLS
+
+DEF SEG = &HB800
+FOR i = 0 TO 255
+  POKE 2 * i, i AND 255
+NEXT
+DEF SEG
+

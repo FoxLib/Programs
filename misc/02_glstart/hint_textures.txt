@@ -1,0 +1,29 @@
+void LoadGLTextures(int texture_order, Image4GL* image)
+{
+    // Текстура создается в памяти, назначается GLuint
+    glGenTextures(1, (GLuint *)&texture[ texture_order ]);
+    
+    // Выбираем эту текстуру, работаем с 2D: x, y.
+    glBindTexture(GL_TEXTURE_2D, texture[ texture_order ]);...
+
+    // Линейная интерполяция для приближенных объектов
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);  // GL_NEAREST
+
+    // Линейная интерполяция для удаленных объектов
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);.
+
+    /**
+    * @url https://www.opengl.org/sdk/docs/man2/xhtml/gluBuild2DMipmaps.xml
+    *.
+    * GLint gluBuild2DMipmaps(....
+    * GLenum      target,
+     * GLint      internalFormat,
+     * GLsizei  width,
+     * GLsizei  height,
+     * GLenum      format,
+     * GLenum      type,
+     * const void * data);
+     */
+
+    gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, image->width, image->height, GL_RGBA, GL_UNSIGNED_BYTE, (void *)image->pix);
+};

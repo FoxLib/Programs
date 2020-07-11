@@ -1,0 +1,1 @@
+gcc qdb.c -o qdb
