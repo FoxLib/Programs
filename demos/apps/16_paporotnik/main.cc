@@ -15,15 +15,15 @@ struct generator {
 
 const generator gn[3] =
 {
-    { 45, 0.5 }, //  10, 0.4
-    {-45, 0.5 }, // -45, 0.5
-    {  6, 0.95}, //   4, 0.9
+    {       6, 0.9          },
+    {    45+6, 0.9*0.6      },
+    {270+45+6, 0.9*0.6*0.6  },
 };
 
 void ifs(ifspoint origin, int d) {
 
 
-    vec2i c = {160 + origin.x, 100 - origin.y};
+    vec2i c = {320 + origin.x, 240 - origin.y};
     int   p = point(c.x, c.y);
 
     pset(c.x, c.y, max(p, 40 + d));
@@ -47,10 +47,9 @@ void ifs(ifspoint origin, int d) {
 
 int main(int argc, char* argv[]) {
 
-    screen(13);
+    screen(14);
 
-    linebf(0, 0, 320, 200, 1);
-    ifs({ 0, -90, 25, 0 }, 14);
+    ifs({ 0, -120, 50, 0 }, 14);
     while (sdlevent(EVT_REDRAW)) {
     }
 
