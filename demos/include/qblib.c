@@ -881,3 +881,5 @@ int sdlevent(int blocking) {
     return sdl_event_trigger | EVT_IDLE;
 }
 
+float min(float x, float y) { return x < y ? x : y; }
+float max(float x, float y) { return x > y ? x : y; }
