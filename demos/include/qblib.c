@@ -563,15 +563,18 @@ void record2ppm(const char* filename) {
 }
 
 // Записывает только если задан rec. maxtime - ограничение в кадрах (1 сек = 60 кадров)
-void record(int argc, char* argv[], int maxframe) {
+int record(int argc, char* argv[], int maxframe) {
 
     if (argc > 1 && strcmp(argv[1], "rec") == 0) {
 
         rec_frame_id++;
         if ((rec_frame_id && rec_frame_id <= maxframe) || (maxframe == 0)) {
             saveppm("");
+        } else if (maxframe) {
+            return true;
         }
     }
+    return false;
 }
 
 // Загрузка бегущей строки в память

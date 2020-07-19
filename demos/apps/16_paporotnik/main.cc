@@ -1,19 +1,16 @@
 #include <qblib.c>
 
 struct ifspoint {
-
     int    x, y;
     double radius;
     double theta;
 };
 
 struct generator {
-
     float phi, radius;
 };
 
-
-const generator gn[3] =
+static generator gn[3] =
 {
     {       6, 0.9          },
     {    45+6, 0.9*0.6      },
@@ -21,7 +18,6 @@ const generator gn[3] =
 };
 
 void ifs(ifspoint origin, int d) {
-
 
     vec2i c = {320 + origin.x, 240 - origin.y};
     int   p = point(c.x, c.y);
@@ -49,9 +45,20 @@ int main(int argc, char* argv[]) {
 
     screen(14);
 
-    ifs({ 0, -120, 50, 0 }, 14);
+    int iter = 0;
     while (sdlevent(EVT_REDRAW)) {
-    }
 
+        cls();
+        ifs({ 0, -120, 50, 0 }, 14);
+
+        gn[0].phi += 0.1;
+        gn[1].phi += 0.1;
+        gn[2].phi += 0.1;
+
+        if (iter < 3600) record(argc, argv, 0);
+
+        color(15, 0); locate (0, 0); print(itoa(iter++));
+
+    }
     return 0;
 }
