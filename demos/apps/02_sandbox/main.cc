@@ -3,7 +3,7 @@
 #define SAND(x,y,dx,dy) buf[1][x+(dx)][y+(dy)] = buf[0][x][y]; buf[1][x][y] = 0
 
 float timer;
-int buf[2][320][200];
+int buf[2][640][360];
 
 // Инициализация буфера, рисование препятствий и начального состояния
 void init() {

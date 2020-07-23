@@ -70,8 +70,9 @@ void screen(int mode) {
     switch (mode) {
 
         case 12:
-        case 14: w = 640; h = 480; qb_width = 80; qb_height = 30; qb_screen_factor = 2; qb_font_height = 16; break;
         case 13: w = 320; h = 200; qb_width = 40; qb_height = 25; qb_screen_factor = 4; qb_font_height = 8;  break;
+        case 14: w = 640; h = 480; qb_width = 80; qb_height = 30; qb_screen_factor = 2; qb_font_height = 16; break;
+        case 15: w = 640; h = 360; qb_width = 45; qb_height = 22; qb_screen_factor = 2; qb_font_height = 8;  break;
         default: w = 640; h = 480; qb_width = 80; qb_height = 30; qb_screen_factor = 2; qb_font_height = 16; break;
     }
 
@@ -126,7 +127,9 @@ uint _get_color(int color) {
 
         case 12: color = qb_palette[color & 0x0f]; break;
         case 13: color = qb_palette[color & 0xff]; break;
-        case 14: color = qb_palette[color & 0xff]; break;
+        case 14:
+        case 15:
+            color = qb_palette[color & 0xff]; break;
     }
 
     return color;
@@ -352,6 +355,7 @@ void _print_char(int x, int y, unsigned char ch) {
 
         case 12:
         case 14:
+        case 15:
 
             for (int i = 0; i < 16; i++)
             for (int j = 0; j < 8; j++) {

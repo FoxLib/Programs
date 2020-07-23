@@ -65,7 +65,7 @@ void draw_scene() {
         objbuf[x][y] = qb_screen[x][y];
 }
 
-int max = -1;
+int maxval = -1;
 
 // Вычисление света
 void calclight(int lx, int ly) {
@@ -83,7 +83,7 @@ void calclight(int lx, int ly) {
         int length = (lx-j)*(lx-j) + (ly-i)*(ly-i);
         qray[j][i] = sqrtval[length] * sqrtval[density];
 
-        if (density > max) max = density;
+        if (density > maxval) maxval = density;
     }
 
     // Перерисовка экрана
