@@ -34,7 +34,7 @@ int main(int argc, char* argv[]) {
                 typeprint(x+16, y, '_', 15);
 
                 x += 16;
-                next = (rand() % 7) + 1;
+                next = (rand() % 2) + 1;
             }
             else {
 
@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) {
             }
         }
 
-        if (record(argc, argv, 5*60)) break;
+        if (record(argc, argv, 2*60)) break;
 
     }
 
