@@ -46,6 +46,8 @@ int   qb_screen[ QB_MAX_WIDTH ][ QB_MAX_HEIGHT ];
 int   is_dither_palette;
 rgbi  qb_pixels[ QB_MAX_WIDTH ][ QB_MAX_HEIGHT ];
 
+int   sdl_key_id;
+
 enum MOUSE_BUTTONS {
     LF_CLICK = 1,
     RT_CLICK = 2
@@ -107,8 +109,45 @@ void flip();
 uint qb_sdl_timer60(uint interval, void *param);
 int sdlkey(SDL_Event event);
 int has_event(int evt);
+int keycode();
+int keypress();
 
 // ---------------------------------------------------------------------
+
+enum KEY_ASCII {
+
+    key_LSHIFT      = 0x01,
+    key_LALT        = 0x02,
+    key_LCTRL       = 0x03,
+    key_UP          = 0x04,
+    key_DN          = 0x05,
+    key_LF          = 0x06,
+    key_RT          = 0x07,
+    key_BS          = 0x08,
+    key_TAB         = 0x09,
+    key_ENTER       = 0x0A,
+    key_HOME        = 0x0B,
+    key_END         = 0x0C,
+    key_PGUP        = 0x0D,
+    key_PGDN        = 0x0E,
+    key_DEL         = 0x0F,
+    key_F1          = 0x10,
+    key_F2          = 0x11,
+    key_F3          = 0x12,
+    key_F4          = 0x13,
+    key_F5          = 0x14,
+    key_F6          = 0x15,
+    key_F7          = 0x16,
+    key_F8          = 0x17,
+    key_F9          = 0x18,
+    key_F10         = 0x19,
+    key_F11         = 0x1A,
+    key_ESC         = 0x1B,
+    key_INS         = 0x1C,
+    key_NL          = 0x1D,
+    key_F12         = 0x1E,
+    key_SPECIAL     = 0x1F          // Особая клавиша
+};
 
 // Шрифты 8x8
 static const unsigned char QB_FONT_8x8[256][8] = {
