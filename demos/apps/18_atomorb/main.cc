@@ -137,6 +137,8 @@ int main(int argc, char* argv[]) {
         if (key >= '1' && key <= '5') {
             type = key - '0';
         }
+
+        if (key == 'P') { saveppm("shot.ppm"); }
     }
 
     return 0;
