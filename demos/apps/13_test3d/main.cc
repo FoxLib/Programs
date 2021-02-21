@@ -40,7 +40,7 @@ int main(int argc, char* argv[]) {
         light.z = 2 + 3*cos(3*t);
 
         // Обновление экрана
-        for (int y = -92; y < 100; y++)
+        for (int y = -100; y < 100; y++)
         for (int x = -160; x < 160; x++) {
 
             RGB cl = {0, 0, 0};
@@ -83,7 +83,9 @@ int main(int argc, char* argv[]) {
         t += 0.0025;
 
         // Запись экрана
-        useindex(1); color(15, 0); if (step_runstr(24)) record(argc, argv, 0);
+        useindex(1); color(15, 0); 
+        // if (step_runstr(24)) 
+        record(argc, argv, 0);
     }
 
     return 0;

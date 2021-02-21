@@ -28,6 +28,7 @@ int main(int argc, char* argv[]) {
 
     screen(13);
     init();
+    load_running_string("ticker.txt");
 
     for (int i = 1; i < 256; i++) palette(i, i, i, i);
     palette(255, 0, 255, 0);
@@ -51,7 +52,7 @@ int main(int argc, char* argv[]) {
         t += 0.01;
 
         srand(1);
-        for (int y = 0; y < 200; y++)
+        for (int y = 0; y < 192; y++)
         for (int x = 0; x < 320; x++) {
 
             vec2 h = {
@@ -72,7 +73,10 @@ int main(int argc, char* argv[]) {
             pset(x, y, l);
         }
 
-        record(argc, argv);
+        useindex(1);
+        color(250, 0);
+        if (step_runstr(24))
+            record(argc, argv, 0);
     }
 
     return 0;
