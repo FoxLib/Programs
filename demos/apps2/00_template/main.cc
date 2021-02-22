@@ -4,18 +4,18 @@ using namespace std;
 
 int main(int argc, char* argv[]) {
 
-    SDL2framework win(640, 480);
+    SDL2framework win(13);
 
     int k = 0;
     while (win.poll()) {
 
+        if (win.timer()) {
 
-        for (int y = 0; y < 480; y++)
-        for (int x = 0; x < 640; x++)
-            win.pixel(x, y, x * y * k);
-
-        k++;
-
+            k++;
+            for (int y = 0; y < 240; y++)
+            for (int x = 0; x < 320; x++)
+                win.pset(x, y, sin(x)*cos(y)*sin((float)k/256)*256);
+        }
     }
 
     return 0;
