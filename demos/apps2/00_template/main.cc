@@ -14,7 +14,7 @@ int main(int argc, char* argv[]) {
             k++;
             for (int y = 0; y < 240; y++)
             for (int x = 0; x < 320; x++)
-                win.pset(x, y, sin(x)*cos(y)*sin((float)k/256)*256);
+                win.pset(x, y, x*y/256 + k);
         }
     }
 

@@ -3,7 +3,6 @@
 #include <time.h>
 #include <sys/timeb.h>
 #include <memory.h>
-#include <unistd.h>
 #include <fcntl.h>
 #include <SDL2/SDL.h>
 
@@ -117,8 +116,8 @@ public:
 
         switch (mode) {
 
-            case 12: w = 640; h = 480; useindex = 15; break;
-            case 13: w = 640; h = 480; scale = 2; useindex = 255; break;
+            case 12: w = 640; h = 400; scale = 2; useindex = 15; break;
+            case 13: w = 960; h = 600; scale = 3; useindex = 255; break;
             default:
 
                 exit(3);
