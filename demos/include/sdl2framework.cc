@@ -48,6 +48,10 @@ enum SDL2FrameworkKeyASCII {
     key_SPECIAL     = 0x1F          // Особая клавиша
 };
 
+struct vec2 { float x, y; };
+struct vec3 { float x, y, z; };
+struct vec4 { float x, y, z, w; };
+
 static const int SDL2FrameworkQbPalette[256] = {
   0x000000, 0x0000aa, 0x00aa00, 0x00aaaa, 0xaa0000, 0xaa00aa, 0xaa5500, 0xaaaaaa, // 0
   0x555555, 0x5555ff, 0x55ff55, 0x55ffff, 0xff5555, 0xff55ff, 0xffff55, 0xffffff, // 8
@@ -380,6 +384,12 @@ public:
     }
 
     // -----------------------------------------------------------------
+
+    void cls(int cl) {
+
+        for (int i = 0; i < width*height; i++)
+            ( (Uint32*)surface->pixels )[i] = cl;
+    }
 
     // В зависимости от видеорежима
     void pset(int x, int y, int cl) {
