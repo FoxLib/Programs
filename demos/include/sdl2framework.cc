@@ -116,7 +116,8 @@ public:
 
         switch (mode) {
 
-            case 12: w = 640; h = 400; scale = 2; useindex = 15; break;
+            case  3: w = 1280; h = 800; scale = 2; useindex = 15; break;
+            case 12: w = 1280; h = 960; scale = 2; useindex = 15; break;
             case 13: w = 960; h = 600; scale = 3; useindex = 255; break;
             default:
 
@@ -373,6 +374,8 @@ public:
 
     // Цветовая палитра
     int getcolor(int cl) {
+
+        if (cl < 0) return -cl;
         return useindex ? SDL2FrameworkQbPalette[cl & useindex] : cl;
     }
 
