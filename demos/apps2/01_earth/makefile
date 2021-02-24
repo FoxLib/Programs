@@ -1,7 +1,7 @@
 CC=g++
 SDL=`sdl-config --cflags --libs`
 LIB=-lSDL2 -lm
-WARN=-Wall
+WARN=-Wall -Wno-unused-result
 CFLAGS=-I../../include $(SDL) -O3 $(WARN)
 
 all:

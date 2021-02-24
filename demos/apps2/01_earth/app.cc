@@ -1,3 +1,4 @@
+#define SELFNAME "app.cc"
 
 class App {
 protected:
@@ -6,12 +7,63 @@ protected:
     struct vec3 org;
     float timer;
 
+    char  textbuf[960][480];
+    int   loc_x, loc_y;
+    int   filesize, loc_file;
+
 public:
 
     App(SDL2framework* _win) {
 
         win = _win;
         timer = 0;
+
+        // Очистка области рисования
+        loc_x = loc_y = loc_file = 0;
+        for (int y = 0; y < 480; y++)
+        for (int x = 0; x < 480; x++)
+            textbuf[x][y] = 0;
+
+        // Чтение файла
+        FILE* fp = fopen(SELFNAME, "rb");
+        fseek(fp, 0, SEEK_END);
+        filesize = ftell(fp);
+        fclose(fp);
+    }
+
+    // Чтение следующего символа из файла
+    int readnext() {
+
+        unsigned char buf[2];
+
+        if (loc_file >= filesize)
+            return 0;
+
+        // Чтение следующего символа
+        FILE* fp = fopen(SELFNAME, "rb");
+        fseek(fp, loc_file++, SEEK_SET);
+        (void) fread(buf, 1, 2, fp);
+        fclose(fp);
+
+        int ch = buf[0];
+
+        // Прописные русские буквы
+        if (ch == 0xD0) {
+
+            if (buf[1] == 0x01) buf[0] = 0xA5;
+            else if (buf[1] >= 0x90 && buf[1] < 0xC0) ch = buf[1] - 0x10;
+            else if (buf[1] >= 0xB0 && buf[1] < 0xC0) ch = buf[1] - 0x10;
+            loc_file++;
+        }
+        // Строчные русские буквы
+        else if (ch == 0xD1) {
+
+            if (buf[1] == 0x91) ch = 0x85;
+            else if (buf[1] >= 0x80) ch = buf[1] + 0x60;
+            loc_file++;
+        }
+
+        return ch;
     }
 
     int gray(int x) {
@@ -92,6 +144,50 @@ public:
         }
 
         return val;
+    }
+
+    // Пропечатать символ
+    void printchr(unsigned char ch, int fore) {
+
+        int i, j;
+
+        if (ch == 0)
+            return;
+
+        // Печатать все, кроме символа переноса строки
+        if (ch != 10) {
+
+            for (i = 0; i < 16; i++)
+            for (j = 0; j < 8; j++) {
+
+                int bt = QB_FONT_8x16[ch][i] & (1 << (7 ^ j));
+                int cl = bt ? fore : 0;
+                if (cl >= 0) textbuf[8*loc_x+j][16*loc_y+i] = cl;
+            }
+
+            loc_x++;
+        }
+
+        // Перевод каретки
+        if (8*(loc_x + 1) > win->w() || ch == 10) {
+
+            loc_y++;
+            loc_x = 0;
+
+            // Перенос строки
+            if (16*(loc_y + 1) > win->h()) {
+
+                for (i = 0; i < win->h() - 16; i++)
+                for (j = 0; j < win->w(); j++)
+                    textbuf[j][i] = textbuf[j][i+16];
+
+                for (i = win->h() - 16; i < win->h(); i++)
+                for (j = 0; j < win->w(); j++)
+                    textbuf[j][i] = 0;
+
+                loc_y--;
+            }
+        }
     }
 
     void update() {
@@ -193,7 +289,32 @@ public:
             }
         }
 
-        timer += 0.00025;
+        // Следующий символ
+        printchr(readnext(), 15);
 
+        // Наложение текста
+        for (int y = 0; y < height; y++)
+        for (int x = 0; x < width; x++) {
+
+            int cl = win->point(x, y);
+            int tx = SDL2FrameworkQbPalette[ (int)textbuf[x][y] ];
+
+            int r, g, b;
+            unsigned char r0 = cl>>16, g0 = cl >> 8, b0 = cl;
+            unsigned char r1 = tx>>16, g1 = tx >> 8, b1 = tx;
+
+            r = (r0*3/4) + (r1>>0); if (r > 255) r = 255;
+            g = (g0*3/4) + (g1>>0); if (g > 255) g = 255;
+            b = (b0*3/4) + (b1>>0); if (b > 255) b = 255;
+
+            win->pset(x, y, -(r*65536 + g*256 + b));
+        }
+
+        // Курсор
+        for (int y = 0; y < 2; y++)
+        for (int x = 0; x < 8; x++)
+            win->pset(loc_x*8+x, (loc_y+1)*16-1-y, 10);
+
+        timer += 0.00025;
     }
 };

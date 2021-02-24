@@ -330,6 +330,16 @@ public:
             ( (Uint32*)surface->pixels )[i] = cl;
     }
 
+    // Цвет точки (положительное число)
+    int point(int x, int y) {
+
+        if (x >= 0 && x < width && y >= 0 && y < height) {
+            return ( (Uint32*)surface->pixels )[ scale*y*width + scale*x ];
+        }
+
+        return 0;
+    }
+
     // В зависимости от видеорежима
     void pset(int x, int y, int cl) {
 
