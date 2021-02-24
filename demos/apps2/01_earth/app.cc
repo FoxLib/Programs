@@ -100,6 +100,11 @@ public:
         float m, u, v, cloud, refl, lspe, dl;
         float radius = 1;
 
+        int width   = win->w(),
+            height  = win->h();
+        int width2  = width >> 1,
+            height2 = height>>1;
+
         org    = {0, 0, 1.5};
         radius = 1 + 0.25*sin(timer);
         sun    = {org.x + 4*sin(timer), 1, org.z - 4*cos(timer)};
@@ -108,16 +113,17 @@ public:
         win->cls(0);
 
         // Случайные звезды
-        for (int i = 0; i < 255; i++) win->pset(320 * rnd(i,0), 200 * rnd(0,i), -gray(i));
+        for (int i = 0; i < 512; i++)
+            win->pset(width * rnd(i,0), height * rnd(0,i), -gray(255*rnd(i, i)));
 
         // Основной цикл обработки
-        for (int y = -100; y <= 100; y++)
-        for (int x = -160; x < 160; x++) {
+        for (int y = -height2; y <= height2; y++)
+        for (int x = -width2; x < width2; x++) {
 
             cl = {x: 0, y: 0, z: 0};
 
             // Поиск точки пересения луча со сферой
-            c  = {x: (float)x / 100, y: (float)y / 100, z: 1.0};
+            c  = {x: (float)x / height2, y: (float)y / height2, z: 1.0};
             m  = sphere(c, org, radius);
 
             if (m > 0) {
@@ -183,7 +189,7 @@ public:
                 cl.y = (int)(cl.y > 255 ? 255 : (cl.y < 0 ? 0 : cl.y));
                 cl.z = (int)(cl.z > 255 ? 255 : (cl.z < 0 ? 0 : cl.z));
 
-                win->pset(160 + x, 100 - y, -(cl.x*65536 + cl.y*256 + cl.z));
+                win->pset(width/2 + x, height/2 - y, -(cl.x*65536 + cl.y*256 + cl.z));
             }
         }
 
