@@ -5,7 +5,7 @@ using namespace std;
 
 int main(int argc, char* argv[]) {
 
-    SDL2framework win(11);
+    SDL2framework win(14);
     App app(& win);
 
     while (win.poll()) {

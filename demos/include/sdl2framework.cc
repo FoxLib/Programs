@@ -479,6 +479,52 @@ public:
         }
     }
 
+    // Математика
+    // -----------------------------------------------------------------
+
+    // Арктангенс
+    float atn(float x, float y) { return (atan2(y, x) + M_PI) / (2*M_PI); }
+
+    // Псевдослучайное число
+    float rnd(float x, float y) {
+
+        float m = sin(x*12.9898 + y*78.233) * 43758.545312;
+        return m - floor(m);
+    }
+
+    float noise(float x, float y) {
+
+        int   ix = floor(x), iy = floor(y);
+        float fx = x - ix, fy = y - iy;
+
+        float
+            a = rnd(ix,     iy),
+            b = rnd(ix + 1, iy),
+            c = rnd(ix,     iy + 1),
+            d = rnd(ix + 1, iy + 1);
+
+        float
+            ux = fx*fx*(3 - 2*fx),
+            uy = fy*fy*(3 - 2*fy);
+
+        return a*(1-ux) + b*ux + (c-a)*uy*(1-ux) + (d-b)*ux*uy;
+    }
+
+    float fbm(float x, float y) {
+
+        float val = 0, amp = 0.5;
+
+        for (int i = 0; i <= 5; i++) {
+
+            val += amp*noise(x, y);
+            x *= 2;
+            y *= 2;
+            amp *= 0.5;
+        }
+
+        return val;
+    }
+
     // -----------------------------------------------------------------
 
     // Наличие нажатой клавиши

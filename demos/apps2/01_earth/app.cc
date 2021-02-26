@@ -72,16 +72,6 @@ public:
         return (x + x*256 + x*65536);
     }
 
-    // Арктангенс
-    float atn(float x, float y) { return (atan2(y, x) + M_PI) / (2*M_PI); }
-
-    // Псевдослучайное число
-    float rnd(float x, float y) {
-
-        float m = sin(x*12.9898 + y*78.233) * 43758.545312;
-        return m - floor(m);
-    }
-
     // Поиск точки соприкосновения со сферой
     float sphere(struct vec3 d, struct vec3 o, float r) {
 
@@ -111,39 +101,6 @@ public:
 
         float l = 1 / sqrt(n.x*n.x + n.y*n.y + n.z*n.z);
         return {n.x*l, n.y*l, n.z*l};
-    }
-
-    float noise(float x, float y) {
-
-        int   ix = floor(x), iy = floor(y);
-        float fx = x - ix, fy = y - iy;
-
-        float
-            a = rnd(ix,     iy),
-            b = rnd(ix + 1, iy),
-            c = rnd(ix,     iy + 1),
-            d = rnd(ix + 1, iy + 1);
-
-        float
-            ux = fx*fx*(3 - 2*fx),
-            uy = fy*fy*(3 - 2*fy);
-
-        return a*(1-ux) + b*ux + (c-a)*uy*(1-ux) + (d-b)*ux*uy;
-    }
-
-    float fbm(float x, float y) {
-
-        float val = 0, amp = 0.5;
-
-        for (int i = 0; i <= 5; i++) {
-
-            val += amp*noise(x, y);
-            x *= 2;
-            y *= 2;
-            amp *= 0.5;
-        }
-
-        return val;
     }
 
     // Пропечатать символ
@@ -190,11 +147,12 @@ public:
         }
     }
 
-    void update() {
+    int update() {
 
         struct vec3 c, cam, cl, sun, sun_n, lno, ref;
         float m, u, v, cloud, refl, lspe, dl;
         float radius = 1;
+        int nextsym = 1;
 
         int width   = win->w(),
             height  = win->h();
@@ -210,7 +168,7 @@ public:
 
         // Случайные звезды
         for (int i = 0; i < 512; i++)
-            win->pset(width * rnd(i,0), height * rnd(0,i), -gray(255*rnd(i, i)));
+            win->pset(width * win->rnd(i,0), height * win->rnd(0,i), -gray(255*win->rnd(i, i)));
 
         // Основной цикл обработки
         for (int y = -height2; y <= height2; y++)
@@ -234,8 +192,8 @@ public:
                 });
 
                 // Вычисление текстуры
-                u = atn(c.x, c.z) + timer;
-                v = atn(c.y, c.z);
+                u = win->atn(c.x, c.z) + timer;
+                v = win->atn(c.y, c.z);
 
                 u = u - floor(u);
                 v = v - floor(v);
@@ -245,10 +203,10 @@ public:
                 if (dl < 0) dl = 0;
 
                 // Текстуры
-                m     = fbm(32*u, 32*v) * 255;
+                m     = win->fbm(32*u, 32*v) * 255;
 
                 // Облака с учетом directional light
-                cloud = dl * (float) trunc(pow(fbm(64.0*u, 64*v), 2) * 255);
+                cloud = dl * (float) trunc(pow(win->fbm(64.0*u, 64*v), 2) * 255);
 
                 if (m < 132) {
 
@@ -290,7 +248,10 @@ public:
         }
 
         // Следующий символ
-        printchr(readnext(), 15);
+        if (rand()%3 == 1) {
+            nextsym = readnext();
+            printchr(nextsym, 15);
+        }
 
         // Наложение текста
         for (int y = 0; y < height; y++)
@@ -316,5 +277,7 @@ public:
             win->pset(loc_x*8+x, (loc_y+1)*16-1-y, 10);
 
         timer += 0.00025;
+
+        return nextsym;
     }
 };
