@@ -460,6 +460,11 @@ void SDL2framework::circlef(int xc, int yc, int radius, int color) {
     }
 }
 
+void SDL2framework::locate(int x, int y) {
+    loc_x = x;
+    loc_y = y;
+}
+
 // Нарисовать на экране символ
 void SDL2framework::print_char(int x, int y, unsigned char ch) {
 
@@ -470,6 +475,42 @@ void SDL2framework::print_char(int x, int y, unsigned char ch) {
         int cl = bt ? color_fore : color_back;
         if (cl >= 0) pset(8*x + j, 8*y + i, cl);
     }
+}
+
+void SDL2framework::print(const char* s) {
+
+    int i = 0;
+    while (s[i]) {
+
+        unsigned char ch = s[i];
+
+        // Прописные русские буквы
+        if (ch == 0xD0) {
+
+            ch = s[++i];
+            if (ch == 0x01) ch = 0xA5;
+            else if (ch >= 0x90 && ch < 0xC0) ch -= 0x10;
+            else if (ch >= 0xB0 && ch < 0xC0) ch -= 0x10;
+        }
+        // Строчные русские буквы
+        else if (ch == 0xD1) {
+
+            ch = s[++i];
+            if (ch == 0x91) ch = 0x85;
+            else if (ch >= 0x80) ch += 0x60;
+        }
+
+        print_char(loc_x, loc_y, ch);
+
+        loc_x = loc_x + 1;
+        if (8*(1 + loc_x) > width) {
+            loc_x = 0;
+            loc_y = loc_y + 1;
+        }
+
+        i++;
+    }
+
 }
 
 // Математика
@@ -522,12 +563,13 @@ float SDL2framework::fbm(float x, float y) {
 void SDL2framework::saveppm(const char* name) {
 
     unsigned char tmp[256];
-    uint cl;
+    unsigned int cl;
     int w = width / scale,
         h = height / scale;
 
     int is_stdout = (strlen(name) == 0);
-    FILE* fp = is_stdout ? stdout : fopen(name, "w+");
+    FILE* fp = stdout;
+    if (!is_stdout) fp = fopen(name, "w+");
 
     sprintf((char*)tmp, "P6\n%d %d\n255\n", w, h);
     fputs((char*)tmp, fp);

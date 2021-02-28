@@ -627,6 +627,7 @@ protected:
     int rec_frame_id;
     int width, height, scale;
     int color_fore, color_back, font_height;
+    int loc_x, loc_y;
 
 public:
 
@@ -642,6 +643,7 @@ public:
     int key_down() { return (event_cause & EventKeyDown) ? access_key_dn : 0; }
     int key_up()   { return (event_cause & EventKeyUp)   ? access_key_up : 0; }
     int timer()    { return (event_cause & EventUpdateScreen); }
+    void color(int fr, int bg) { color_fore = fr; color_back = bg; }
 
     // Алиасы
     void    saveppm() { saveppm(""); }
@@ -664,6 +666,8 @@ public:
     void    circle(int xc, int yc, int radius, int color);
     void    circlef(int xc, int yc, int radius, int color);
     void    print_char(int x, int y, unsigned char ch);
+    void    print(const char* str);
+    void    locate(int x, int y);
     float   atn(float x, float y);
     float   rnd(float x, float y);
     float   noise(float x, float y);
