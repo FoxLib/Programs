@@ -45,6 +45,10 @@ struct vec2 { float x, y; };
 struct vec3 { float x, y, z; };
 struct vec4 { float x, y, z, w; };
 
+struct vec2i { int x, y, z; };
+struct vec3i { int x, y, z; };
+struct vec4i { int x, y, z; };
+
 static const int SDL2FrameworkQbPalette[256] = {
   0x000000, 0x0000aa, 0x00aa00, 0x00aaaa, 0xaa0000, 0xaa00aa, 0xaa5500, 0xaaaaaa, // 0
   0x555555, 0x5555ff, 0x55ff55, 0x55ffff, 0xff5555, 0xff55ff, 0xffff55, 0xffffff, // 8
@@ -605,4 +609,67 @@ static const unsigned char QB_FONT_8x16[256][16] = {
     /* $FD 2   */ {0, 0, 112, 216, 48, 96, 200, 248, 0, 0, 0, 0, 0, 0, 0, 0},      // Квадрат
     /* $FE |   */ {0, 0, 0, 0, 60, 60, 60, 60, 60, 60, 60, 60, 0, 0, 0, 0},        // Прямоугольник
     /* $FF     */ {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}                 // Пустая символга
+};
+
+class SDL2framework {
+
+protected:
+
+    SDL_Surface* surface;
+    SDL_Window*  window;
+    SDL_Event    event;
+    int previous_timer;
+    int timer_loop;
+    struct timeb clock_timer;
+    int access_key_dn, access_key_up;
+    int event_cause;
+    int useindex;
+    int rec_frame_id;
+    int width, height, scale;
+    int color_fore, color_back, font_height;
+
+public:
+
+    SDL2framework(int, int);
+    SDL2framework(int);
+    ~SDL2framework();
+
+    // Геттеры
+    int w() { return width / scale; }
+    int h() { return height / scale; }
+
+    // Наличие нажатой клавиши
+    int key_down() { return (event_cause & EventKeyDown) ? access_key_dn : 0; }
+    int key_up()   { return (event_cause & EventKeyUp)   ? access_key_up : 0; }
+    int timer()    { return (event_cause & EventUpdateScreen); }
+
+    // Алиасы
+    void    saveppm() { saveppm(""); }
+    int     record(int argc, char* argv[]) { return record(argc, argv, 0); }
+
+    // Методы
+    void    create(const char* title, int w, int h);
+    int     sdlkey(SDL_Event event);
+    int     get_key_ascii(SDL_Event event);
+    int     poll();
+    void    pixel(int x, int y, int cl);
+    int     getcolor(int cl);
+    void    cls(int cl);
+    int     rgb(int r, int g, int b);
+    int     point(int x, int y);
+    void    pset(int x, int y, int cl);
+    void    line(int x1, int y1, int x2, int y2, int color);
+    void    lineb(int x1, int y1, int x2, int y2, int color);
+    void    linebf(int x1, int y1, int x2, int y2, int color);
+    void    circle(int xc, int yc, int radius, int color);
+    void    circlef(int xc, int yc, int radius, int color);
+    void    print_char(int x, int y, unsigned char ch);
+    float   atn(float x, float y);
+    float   rnd(float x, float y);
+    float   noise(float x, float y);
+    float   fbm(float x, float y);
+    void    saveppm(const char* name);
+    int     record(int argc, char* argv[], int maxframe);
+
+    inline struct vec3i i2rgb(int cl);
 };

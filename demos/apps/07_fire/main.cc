@@ -105,7 +105,7 @@ int main(int argc, char* argv[]) {
         draw();
         update();
         redraw();
-        if (record(argc, argv, 1*3600)) break;
+        if (record(argc, argv, 3*3600)) break;
     }
 
     return 0;
