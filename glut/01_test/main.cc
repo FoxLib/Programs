@@ -1,167 +1,53 @@
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
 #include <GL/glut.h>
 
-GLenum doubleBuffer;
-GLubyte ubImage[65536];
+int WIDTH  = 2*640;
+int HEIGHT = 2*400;
+int k;
 
-static void
-Init(void)
+GLubyte* PixelBuffer;
+
+void pixel(int x, int y, int r, int g, int b, GLubyte* pixels, int width, int height)
 {
-    int j;
-    GLubyte *img;
-    GLsizei imgWidth = 128;
+    if (0 <= x && x < width && 0 <= y && y < height) {
 
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluPerspective(60.0, 1.0, 0.1, 1000.0);
-    glMatrixMode(GL_MODELVIEW);
-    glDisable(GL_DITHER);
+        int position = (x + y * width) * 4;
 
-    /* Create image */
-    img = ubImage;
-    for (j = 0; j < 32 * imgWidth; j++) {
-        *img++ = 0xff;
-        *img++ = 0x00;
-        *img++ = 0x00;
-        *img++ = 0xff;
-    }
-
-    for (j = 0; j < 32 * imgWidth; j++) {
-        *img++ = 0xff;
-        *img++ = 0x00;
-        *img++ = 0xff;
-        *img++ = 0x00;
-    }
-
-    for (j = 0; j < 32 * imgWidth; j++) {
-        *img++ = 0xff;
-        *img++ = 0xff;
-        *img++ = 0x00;
-        *img++ = 0x00;
-    }
-
-    for (j = 0; j < 32 * imgWidth; j++) {
-        *img++ = 0x00;
-        *img++ = 0xff;
-        *img++ = 0x00;
-        *img++ = 0xff;
+        pixels[position]     = r;
+        pixels[position + 1] = g;
+        pixels[position + 2] = b;
+        pixels[position + 3] = 0;
     }
 }
 
-/* ARGSUSED1 */
-static void Key(unsigned char key, int x, int y)
+void display()
 {
-    switch (key) {
-        case 27: exit(0);
-    }
-}
+    glClear(GL_COLOR_BUFFER_BIT);
 
-void
-TexFunc(void)
-{
-  glEnable(GL_TEXTURE_2D);
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+    for (int y = 0; y < HEIGHT; y++)
+    for (int x = 0; x < WIDTH; x++)
+        pixel(x, y, x, y, x*y/256 + k, PixelBuffer, WIDTH, HEIGHT);
 
-#if GL_EXT_abgr
-  glTexImage2D(GL_TEXTURE_2D, 0, 3, 128, 128, 0, GL_ABGR_EXT, GL_UNSIGNED_BYTE, ubImage);
-
-  glBegin(GL_POLYGON);
-  glTexCoord2f(1.0, 1.0);
-  glVertex3f(-0.2, 0.8, -100.0);
-  glTexCoord2f(0.0, 1.0);
-  glVertex3f(-0.8, 0.8, -2.0);
-  glTexCoord2f(0.0, 0.0);
-  glVertex3f(-0.8, 0.2, -2.0);
-  glTexCoord2f(1.0, 0.0);
-  glVertex3f(-0.2, 0.2, -100.0);
-  glEnd();
-#endif
-
-  glTexImage2D(GL_TEXTURE_2D, 0, 3, 128, 128, 0, GL_RGBA,
-    GL_UNSIGNED_BYTE, ubImage);
-
-  glBegin(GL_POLYGON);
-  glTexCoord2f(1.0, 1.0);
-  glVertex3f(0.8, 0.8, -2.0);
-  glTexCoord2f(0.0, 1.0);
-  glVertex3f(0.2, 0.8, -100.0);
-  glTexCoord2f(0.0, 0.0);
-  glVertex3f(0.2, 0.2, -100.0);
-  glTexCoord2f(1.0, 0.0);
-  glVertex3f(0.8, 0.2, -2.0);
-  glEnd();
-
-  glDisable(GL_TEXTURE_2D);
-}
-
-static void
-Draw(void)
-{
-
-  glClearColor(0.0, 0.0, 0.0, 1.0);
-  glClear(GL_COLOR_BUFFER_BIT);
-
-#if GL_EXT_abgr
-  glRasterPos3f(-0.8, -0.8, -1.5);
-  glDrawPixels(128, 128, GL_ABGR_EXT, GL_UNSIGNED_BYTE, ubImage);
-#endif
-
-  glRasterPos3f(0.2, -0.8, -1.5);
-  glDrawPixels(128, 128, GL_RGBA, GL_UNSIGNED_BYTE, ubImage);
-
-  TexFunc();
-
-  if (doubleBuffer) {
+    glDrawPixels(WIDTH, HEIGHT, GL_RGBA, GL_UNSIGNED_BYTE, PixelBuffer);
     glutSwapBuffers();
-  } else {
-    glFlush();
-  }
+
+    k++;
 }
 
-static void
-Args(int argc, char **argv)
+int main(int argc, char *argv[])
 {
-  GLint i;
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
 
-  doubleBuffer = GL_TRUE;
+    glutInitWindowSize(WIDTH, HEIGHT);
+    glutInitWindowPosition(100, 100);
 
-  for (i = 1; i < argc; i++) {
-    if (strcmp(argv[i], "-sb") == 0) {
-      doubleBuffer = GL_FALSE;
-    } else if (strcmp(argv[i], "-db") == 0) {
-      doubleBuffer = GL_TRUE;
-    }
-  }
-}
+    PixelBuffer = new GLubyte[WIDTH * HEIGHT * 4];
 
-int
-main(int argc, char **argv)
-{
-  GLenum type;
+    int MainWindow = glutCreateWindow("Hello Graphics");
+    glClearColor(0.0, 0.0, 1.0, 0);
 
-  glutInit(&argc, argv);
-  Args(argc, argv);
+    glutIdleFunc(display);
+    glutMainLoop();
 
-  type = GLUT_RGB;
-  type |= (doubleBuffer) ? GLUT_DOUBLE : GLUT_SINGLE;
-  glutInitDisplayMode(type);
-  glutCreateWindow("ABGR extension");
-  if (!glutExtensionSupported("GL_EXT_abgr")) {
-    printf("Couldn't find abgr extension.\n");
-    exit(0);
-  }
-#if !GL_EXT_abgr
-  printf("WARNING: client-side OpenGL has no ABGR extension support!\n");
-  printf("         Drawing only RGBA (and not ABGR) images and textures.\n");
-#endif
-  Init();
-  glutKeyboardFunc(Key);
-  glutDisplayFunc(Draw);
-  glutMainLoop();
-  return 0;             /* ANSI C requires main to return int. */
+    return 0;
 }
