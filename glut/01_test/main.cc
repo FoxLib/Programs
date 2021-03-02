@@ -25,7 +25,7 @@ void display()
 
     for (int y = 0; y < HEIGHT; y++)
     for (int x = 0; x < WIDTH; x++)
-        pixel(x, y, x, y, x*y/256 + k, PixelBuffer, WIDTH, HEIGHT);
+        pixel(x, y, 0, 0, (x+k)*y/256, PixelBuffer, WIDTH, HEIGHT);
 
     glDrawPixels(WIDTH, HEIGHT, GL_RGBA, GL_UNSIGNED_BYTE, PixelBuffer);
     glutSwapBuffers();
@@ -46,6 +46,7 @@ int main(int argc, char *argv[])
     int MainWindow = glutCreateWindow("Hello Graphics");
     glClearColor(0.0, 0.0, 1.0, 0);
 
+    glutDisplayFunc(display);
     glutIdleFunc(display);
     glutMainLoop();
 
