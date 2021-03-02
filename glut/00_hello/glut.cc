@@ -67,9 +67,11 @@ void GLUT::viewport(int w, int h) {
 
     width  = w;
     height = h;
+
+    setcamera(0);
 }
 
-// Матрица проекции
+// Матрица проекции; ortho=1 - ортографическая
 void GLUT::setcamera(int ortho) {
 
     // Переключить в матрицу проекции
@@ -100,14 +102,15 @@ char* GLUT::load_text(const char* filename) {
     }
 
     // Получение размера файла
-    fseek(fp, 0, SEEK_END); fs = ftell(fp);
+    fseek(fp, 0, SEEK_END);
+    fs = ftell(fp);
     fseek(fp, 0, SEEK_SET);
 
     data = (char*) malloc(fs + 1); // Выделить место (+0 zero)
     fread(data, 1, fs, fp);        // Прочесть данные
     data[ fs ] = 0;
-
     fclose(fp);
+
     return data;
 }
 
@@ -131,15 +134,15 @@ GLuint GLUT::load_shader(const char* vertex, const char* fragment) {
     glShaderSource(f_shader, 1, (const char**) & f_shader_src, NULL);
 
     // Компиляция шейдера
-    glCompileShader( v_shader );
-    glCompileShader( f_shader );
+    glCompileShader(v_shader);
+    glCompileShader(f_shader);
 
     // Получить ID программы
     GLuint program = glCreateProgram();
 
     // Прикрепить шейдеры к программе
-    glAttachShader( program, v_shader );
-    glAttachShader( program, f_shader );
+    glAttachShader(program, v_shader);
+    glAttachShader(program, f_shader);
 
     // Линкуем шейдерную программу
     glLinkProgram( program );

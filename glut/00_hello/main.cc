@@ -20,7 +20,6 @@ int main(int argc, char *argv[])
 {
     glut = new GLUT(argc, argv, 40);
     glut->window("Schnuffel Bunny", 640, 640);
-    glut->setcamera(0);
 
     texture_id = glut->texture_xor(256, 256);
     program_id = glut->load_shader("main.vs", "main.fs");
