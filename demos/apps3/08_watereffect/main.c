@@ -4,10 +4,10 @@
 #define MY 500
 
 // -----------------------
-#include "struct.h"
-#include "fonts.h"
-#include "graph.c"
-#include "event.c"
+#include <struct.h>
+#include <fonts.h>
+#include <graph.c>
+#include <event.c>
 // -----------------------
 
 float Fp[ MY ][ MX ];
