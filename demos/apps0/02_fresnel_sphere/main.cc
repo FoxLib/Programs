@@ -1,4 +1,4 @@
-#include "main.h"
+#include <main.h>
 
 studio app(960, 540);
 
@@ -6,7 +6,6 @@ int main(int argc, char* argv[]) {
 
     int     i, j, k;
     image   img(2*960, 2*540);
-
     image   bg(new jpeg("src/bgoh.jpg"));
 
     context3d d3(& img);
@@ -34,7 +33,7 @@ int main(int argc, char* argv[]) {
 
                 int xi = (factor * dir.x) + (float)k/4.0;
                 int yi = (factor * dir.y);
-                
+
                 float sp = 0.0;
 
                 // Есть попадание на сферу
@@ -69,12 +68,12 @@ int main(int argc, char* argv[]) {
         char str[256]; sprintf(str, "fresnel=%1.3f", fres);
         d3.canvas->font(17, 17, str, 0x0);
         d3.canvas->font(16, 16, str, 0xffffff);
-        
+
         app.update(d3.canvas);
         app.savejpeg(d3.canvas, k);
 
     }
     app.loop();
-    
+
     return 0;
 }
