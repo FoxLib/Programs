@@ -226,3 +226,14 @@ GLuint GLUT::texture_xor(int w, int h) {
 
     return texture_id;
 }
+
+
+// Задать униформу
+GLint GLUT::uniform(GLuint _prg_id, const char* name, float value) {
+
+    GLint loc = glGetUniformLocation(_prg_id, name);
+    if (loc != -1) {
+        glUniform1f(loc, value);
+    }
+    return loc;
+}

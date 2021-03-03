@@ -1,5 +1,7 @@
 #version 120
+
 uniform sampler2D tex;
+uniform float utime;
 
 #define OCTAVES 6
 
@@ -38,8 +40,8 @@ float fbm(vec2 st) {
 
 void main() {
 
-    // gl_FragColor = texture2D(tex, gl_TexCoord[0].st );
+    vec4  t = texture2D(tex, gl_TexCoord[0].st );
+    float m = fbm((gl_TexCoord[0].st)*8.0 + vec2(utime, 0.0) + t.st);
 
-    float m = fbm(gl_TexCoord[0].st*8.0);
     gl_FragColor = vec4(m, m, m, 1);
 }
