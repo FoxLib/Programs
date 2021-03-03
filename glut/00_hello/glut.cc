@@ -11,7 +11,17 @@ GLUT::GLUT(int argc, char** argv, int millis) {
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
 
     GLUT_milliseconds = millis;
-    instance = this;
+
+    start_time = microtime();
+    instance   = this;
+
+    // Зарезервировать фреймбуфер
+    fb = NULL;
+}
+
+GLUT::~GLUT() {
+
+    if (fb) free(fb);
 }
 
 // Создать новое окно
@@ -59,6 +69,81 @@ void GLUT::window(const char* t, int w, int h) {
     viewport(w, h);
 }
 
+// Чтение буфера
+void GLUT::readfb() {
+
+    // Создать буфер по требованию
+    if (fb == NULL) fb = (GLuint*) malloc(width*height*sizeof(GLuint));
+
+    // Прочесть пиксели
+    glRasterPos2i(0, 0);
+    glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, fb);
+}
+
+// Запись буфера
+void GLUT::drawfb() {
+
+    if (fb) {
+
+        glRasterPos2i(0, 0);
+        glDrawPixels(width, height, GL_RGBA, GL_UNSIGNED_BYTE, fb);
+    }
+}
+
+// Текущая дата в миллисекундах
+long GLUT::microtime() {
+
+    std::chrono::high_resolution_clock::time_point tm = std::chrono::high_resolution_clock::now();
+    return std::chrono::duration_cast<std::chrono::milliseconds>(tm.time_since_epoch()).count();
+}
+
+// Сколько времени прошло с момента запуска программы
+long GLUT::clocks() {
+    return microtime() - start_time;
+}
+
+// Стандартный поток
+void GLUT::record() {
+    record(stdout);
+}
+
+void GLUT::recordout() {
+    record("output.ppm");
+}
+
+// Догрузка в файл
+void GLUT::record(const char* file) {
+    record(fopen(file, "a+"));
+}
+
+void GLUT::record(FILE* fp) {
+
+    unsigned char tmp[256];
+    unsigned int cl;
+    int w = width, h = height;
+
+    // Прочитать содержимое буфера
+    readfb();
+
+    // Выгрузка в файл
+    sprintf((char*)tmp, "P6\n%d %d\n255\n", w, h);
+    fputs((char*)tmp, fp);
+
+    for (int y = 0; y < h; y++)
+    for (int x = 0; x < w; x++) {
+
+        cl = fb[y*w + x];
+
+        tmp[0] = cl;
+        tmp[1] = cl >> 8;
+        tmp[2] = cl >> 16;
+
+        fwrite(tmp, 1, 3, fp);
+    }
+
+    if (fp != stdout) fclose(fp);
+}
+
 // Установка viewport
 void GLUT::viewport(int w, int h) {
 
@@ -67,6 +152,10 @@ void GLUT::viewport(int w, int h) {
 
     width  = w;
     height = h;
+
+    if (fb) {
+        fb = (GLuint*) realloc(fb, width*height*sizeof(GLuint));
+    }
 
     setcamera(0);
 }

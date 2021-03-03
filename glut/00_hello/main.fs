@@ -4,6 +4,11 @@ uniform sampler2D tex;
 uniform float utime;
 
 #define OCTAVES 6
+#define PI 3.141592
+
+float atan2(float y, float x) {
+    return (PI + atan(y, x)) / (2*PI);
+}
 
 float random (vec2 st) {
     return fract(sin(dot(st.xy, vec2(12.9898,78.233)))*43758.5453123);
@@ -44,4 +49,5 @@ void main() {
     float m = fbm((gl_TexCoord[0].st)*8.0 + vec2(utime, 0.0));
 
     gl_FragColor = m < 0.5 ? vec4(0.0, 0.0, 1.5*m, 1.0) : vec4(m*0.5, m, m*0.5, 1.);
+    // gl_FragColor = vec4(0.0, atan2(gl_TexCoord[0].y - 0.5, 0.5 - gl_TexCoord[0].x), 0.0, 1.0);
 }

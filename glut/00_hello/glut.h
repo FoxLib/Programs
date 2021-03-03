@@ -33,23 +33,36 @@ void main() {\
 class GLUT {
 protected:
 
-    int width, height, main_window;
-
 public:
+
+    long    start_time;
+    int     width, height, main_window;
+    GLuint* fb;
 
     static int GLUT_milliseconds;
     static GLUT* instance;
 
     GLUT(int, char**, int);
+    ~GLUT();
+
+    void readfb();
+    void drawfb();
     void window(const char*, int, int);
     void viewport(int w, int h);
     void setcamera(int ortho);
+
+    void record();
+    void recordout();
+    void record(const char* file);
+    void record(FILE*);
 
     char*  load_text(const char* filename);
     GLuint load_shader(const char* vertex, const char* fragment);
     GLuint load_shader(const char* fragment);
     GLuint load_texture(GLuint* bgra, GLuint width, GLuint height);
     GLint  uniform(GLuint, const char*, float);
+    long   microtime();
+    long   clocks();
 
     GLuint texture_xor(int, int);
     void   cls() { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
@@ -74,7 +87,8 @@ public:
         // Расчет следующего кадра
         int utime = time_span.count();
 
-        if (utime < GLUT_milliseconds) utime = GLUT_milliseconds - utime;
+        if (utime < GLUT_milliseconds)
+             utime = GLUT_milliseconds - utime;
         else utime = 1;
 
         // Новый вызов таймера
