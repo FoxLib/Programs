@@ -4,6 +4,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <string.h>
 
 #include <iostream>
 #include <ctime>
@@ -36,6 +37,7 @@ protected:
 public:
 
     long    start_time;
+    int     record_on;
     int     width, height, main_window;
     GLuint* fb;
 

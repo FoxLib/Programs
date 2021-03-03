@@ -17,6 +17,9 @@ GLUT::GLUT(int argc, char** argv, int millis) {
 
     // Зарезервировать фреймбуфер
     fb = NULL;
+
+    // Решение о видеозаписи
+    record_on = (argc > 1 && strcmp(argv[1], "rec") == 0);
 }
 
 GLUT::~GLUT() {
@@ -104,7 +107,7 @@ long GLUT::clocks() {
 
 // Стандартный поток
 void GLUT::record() {
-    record(stdout);
+    if (record_on) record(stdout);
 }
 
 void GLUT::recordout() {
