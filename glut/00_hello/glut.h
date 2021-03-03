@@ -18,6 +18,14 @@ enum GLUT_events {
     L_event_timer = 1
 };
 
+// Вершинный шейдер по умолчанию
+static char glut_vertex_shader[] = "#version 120\n\
+attribute vec4 position;\n\
+void main() {\
+    gl_TexCoord[0] = gl_MultiTexCoord0;\
+    gl_Position    = gl_ProjectionMatrix * gl_ModelViewMatrix * position;\
+}";
+
 // ---------------------------------------------------------------------
 // Объявление класса
 // ---------------------------------------------------------------------
@@ -39,6 +47,7 @@ public:
 
     char*  load_text(const char* filename);
     GLuint load_shader(const char* vertex, const char* fragment);
+    GLuint load_shader(const char* fragment);
     GLuint load_texture(GLuint* bgra, GLuint width, GLuint height);
     GLint  uniform(GLuint, const char*, float);
 

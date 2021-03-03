@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
     glut->window("Schnuffel Bunny", 640, 640);
 
     texture_id = glut->texture_xor(256, 256);
-    program_id = glut->load_shader("main.vs", "main.fs");
+    program_id = glut->load_shader("main.fs");
     glUseProgram(program_id);
 
     glutMainLoop();

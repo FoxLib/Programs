@@ -114,6 +114,11 @@ char* GLUT::load_text(const char* filename) {
     return data;
 }
 
+// Упрощенный шейдер
+GLuint GLUT::load_shader(const char* fragment) {
+    load_shader(NULL, fragment);
+}
+
 // Загрузка шейдера с диска
 GLuint GLUT::load_shader(const char* vertex, const char* fragment) {
 
@@ -122,7 +127,7 @@ GLuint GLUT::load_shader(const char* vertex, const char* fragment) {
     GLuint  v_shader, f_shader;
 
     // Загрузка шейдеров в память
-    char* v_shader_src = load_text(vertex);
+    char* v_shader_src = (vertex == NULL ? glut_vertex_shader : load_text(vertex));
     char* f_shader_src = load_text(fragment);
 
     // Создать вершинный и фрагментные шейдеры
@@ -166,7 +171,7 @@ GLuint GLUT::load_shader(const char* vertex, const char* fragment) {
         exit(1);
     }
 
-    free(v_shader_src);
+    if (vertex != NULL) free(v_shader_src);
     free(f_shader_src);
 
     return program;
