@@ -41,7 +41,7 @@ float fbm(vec2 st) {
 void main() {
 
     vec4  t = texture2D(tex, gl_TexCoord[0].st );
-    float m = fbm((gl_TexCoord[0].st)*8.0 + vec2(utime, 0.0) + t.st);
+    float m = fbm((gl_TexCoord[0].st)*8.0 + vec2(utime, 0.0));
 
-    gl_FragColor = vec4(m, m, m, 1);
+    gl_FragColor = m < 0.5 ? vec4(0.0, 0.0, 1.5*m, 1.0) : vec4(m*0.5, m, m*0.5, 1.);
 }

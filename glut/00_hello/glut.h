@@ -73,6 +73,7 @@ public:
 
         // Расчет следующего кадра
         int utime = time_span.count();
+
         if (utime < GLUT_milliseconds) utime = GLUT_milliseconds - utime;
         else utime = 1;
 

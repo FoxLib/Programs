@@ -171,6 +171,7 @@ GLuint GLUT::load_shader(const char* vertex, const char* fragment) {
         exit(1);
     }
 
+    // Не освобождать память, если не занято было
     if (vertex != NULL) free(v_shader_src);
     free(f_shader_src);
 
@@ -231,7 +232,6 @@ GLuint GLUT::texture_xor(int w, int h) {
 
     return texture_id;
 }
-
 
 // Задать униформу
 GLint GLUT::uniform(GLuint _prg_id, const char* name, float value) {
