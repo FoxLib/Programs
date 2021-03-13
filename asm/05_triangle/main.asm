@@ -39,8 +39,7 @@ macro   increm  a, b {
         push    0xA000
         pop     es
 
-@@:
-        ; Создание треугольника
+@@:     ; Перерисовка треугольника
         mov     si, data_tri
         mov     di, data_com
         call    create_parameter_tri
@@ -64,21 +63,26 @@ draw_screen:
 
         xor     di, di
         mov     [.cursor], word 0
-        mov     [calcuvd.dy], dword 100
+        mov     [.dy],     dword 100
 
         ; for (y = 0; y < 200; y++)
         mov     cx, 200
 .L2:    push    cx
 
-        ; Расчет координат
+        ; Первичный расчет
         mov     di, data_com
-        call    calcuvd
-        mov     cx, 320
+        call    .mult
+        mov     [.u], eax       ; u = dx*A1 + dy*A2 + dz*A3
+        call    .mult
+        mov     [.v], eax       ; v = dx*B1 + dy*B2 + dz*B3
+        call    .mult
+        mov     [.D], eax       ; D = dx*C1 + dy*C2 + dz*C3
 
         ; for (x = 0; x < 320; x++)
-.L1:    mov     eax, [calcuvd.u]
-        mov     ebx, [calcuvd.v]
-        mov     edx, [calcuvd.D]
+        mov     cx, 320
+.L1:    mov     eax, [.u]
+        mov     ebx, [.v]
+        mov     edx, [.D]
         mov     [.cl], byte 0
 
         ; if (u + v < D && u >= 0 && v >= 0) then
@@ -89,17 +93,15 @@ draw_screen:
         js      @f
 
         ; (BL) u = 16*(u / D)
-        ; --------------------------------------
-        mov     eax, [calcuvd.v]
-        mov     ebx, [calcuvd.D]
+        mov     eax, [.v]
+        mov     ebx, [.D]
         shr     ebx, 4
         cdq
         div     ebx
 
         ; (AL) v = 16*(v / D)
-        ; --------------------------------------
         push    ax
-        mov     eax, [calcuvd.u]
+        mov     eax, [.u]
         cdq
         div     ebx
         pop     bx
@@ -116,36 +118,19 @@ draw_screen:
         mov     [.cursor], di
 
         ; Приращение u,v,D параметров
-        increm  calcuvd.u, data_com+0
-        increm  calcuvd.v, data_com+6
-        increm  calcuvd.D, data_com+12
+        increm  .u, data_com+0
+        increm  .v, data_com+6
+        increm  .D, data_com+12
 
-        ; Обработка одной строки
         dec     cx
         jne     .L1
-        dec     [calcuvd.dy]
+        dec     [.dy]
         pop     cx
-
-        ; Обработка всего экрана
         dec     cx
         jne     .L2
         ret
 
-.cursor dw      0
-.cl     db      0
-
-; ----------------------------------------------------------------------
-calcuvd:
-
-        call    .mult
-        mov     [.u], eax   ; u = dx*A1 + dy*A2 + dz*A3
-        call    .mult
-        mov     [.v], eax   ; v = dx*B1 + dy*B2 + dz*B3
-        call    .mult
-        mov     [.D], eax   ; D = dx*C1 + dy*C2 + dz*C3
-        ret
-
-.mult:  ; Скалярное произведение d*vec3
+.mult:  ; Скалярное произведение D*vec3
         movsx   eax, word [di]          ; A.i
         mul     dword [.dx]
         xchg    eax, ebx
@@ -158,12 +143,14 @@ calcuvd:
         add     di, 6
         ret
 
+.cursor dw      0
 .dx     dd      -160
 .dy     dd      100
 .dz     dd      100
 .u      dd      0
 .v      dd      0
 .D      dd      0
+.cl     db      0
 
 ; ----------------------------------------------------------------------
 ; ВЫЧИСЛЕНИЕ ПАРАМЕТРОВ ТРЕУГОЛЬНИКА В ПРОСТРАНСТВЕ
