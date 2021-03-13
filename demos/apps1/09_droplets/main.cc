@@ -48,7 +48,10 @@ void waves() {
     if (mouse.st & LF_CLICK) Fn[mouse.x][mouse.y] = (rand()%256) - 16;
 
     // Спираль
-    Fn[ (int)(WIDTH/2 + 90*sin(t)) ][ (int)(HEIGHT/2 + 90*cos(t)) ] = 32 + (rand()%16) * sin(0.5*t);
+    int x = WIDTH/2  + 120.0*sin(t)*cos(t);
+    int y = HEIGHT/2 + 120.0*cos(t);
+
+    Fn[x][y] = 16 + (rand()%8) * sin(0.5*t);
 
     // Случайные капли
     for (j = 0; j < 4; j++) Fn[ rand() % WIDTH ][ rand() % HEIGHT ] = (rand() % 32);
@@ -89,7 +92,7 @@ void waves() {
         Fn[j][i] = sw;
     }
 
-    t = t + 0.04;
+    t = t + 0.02;
 }
 
 // Перерисовать

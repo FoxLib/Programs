@@ -2,7 +2,7 @@ CC=g++
 SDL=`sdl-config --cflags --libs`
 LIBS=-lSDL -lm
 WARN=-Wall
-CFLAGS=-I../../include $(SDL) -O3 $(WARN)
+CFLAGS=-I../../../includes $(SDL) -O3 $(WARN)
 OBJ=main.o
 
 all: $(OBJ)
