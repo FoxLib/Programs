@@ -101,11 +101,11 @@ draw_screen:
         or      al, 0x10
         mov     [.cl], al
 
+        ; Рисование пикселя
 @@:     mov     al, [.cl]
         mov     di, [.cursor]
         stosb                   ; Рисование пикселя
         mov     [.cursor], di
-        ;inc     [cursor]
 
         ; Приращение u,v,D параметров
         increm  calcuvd.u, data_com+0
