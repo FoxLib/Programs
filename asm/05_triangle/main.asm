@@ -3,7 +3,7 @@
         org     100h
 
 ; Макрос умножения 2x2 матрицы (a*b - c*d) #1
-macro   mat2a a, b, c, d {
+macro   mat2a   a, b, c, d {
         mov     ax, [si+c]
         mov     bx, [si+a]
         mul     word [bp-d]
@@ -13,7 +13,7 @@ macro   mat2a a, b, c, d {
         stosw
 }
 ; Макрос умножения 2x2 матрицы (a*b - c*d) #2
-macro   mat2b a, b, c, d {
+macro   mat2b   a, b, c, d {
         mov     ax, [bp-c]
         mov     bx, [bp-a]
         mul     word [bp-d]
@@ -36,16 +36,24 @@ macro   increm  a, b {
 
         mov     ax, 0x0013
         int     10h
-
-        ; Создание треугольника
         push    0xA000
         pop     es
 
+@@:
+        ; Создание треугольника
         mov     si, data_tri
         mov     di, data_com
         call    create_parameter_tri
         call    draw_screen
 
+        ; Управление
+        xor     ax, ax
+        int     16h
+        inc     word [data_tri + 4]    ; A.z++
+        inc     word [data_tri + 4+6]  ; B.z++
+        dec     word [data_tri + 4+12] ; C.z--
+        cmp     al, 27
+        jne     @b
         int     20h
 
 ; ----------------------------------------------------------------------
