@@ -7,15 +7,16 @@
 
 int main(int argc, char** argv) {
 
-    DITHER dither;
+    DITHER m;
 
-    if (argc <= 1) { printf("Требуется имя файла\n"); exit(0); }
+    if (argc <= 1) { printf("Требуется имя файла\n"); return 1; }
+    if (m.load_ppm(argv[1])) { printf("Должен быть файл 256x192\n"); return 1; }
 
-    dither.load_ppm(argv[1]);
-    // --- Нормализация, чтобы цветность картинки не была более 127 и ее средний цвет был 64
-    dither.ditherect();
-    dither.clashing();
-    dither.save_ppm("test.ppm");
+    m.normalize();
+    m.dither();
+    m.clashing();
+    m.save_ppm("test.ppm");
+    m.save_scr("test.scr");
 
     return 0;
 }
