@@ -1,5 +1,14 @@
-#include <iostream>
+/**
+ * Видеорежимы:
+ *
+ * 3:  640 x 400 x 4
+ * 11: 640 x 360 x 4
+ * 12: 640 x 480 x 4
+ * 13: 320 x 200 x 8
+ * 14: 320 x 180 x 8
+ */
 
+#include <iostream>
 #include <time.h>
 #include <sys/timeb.h>
 #include <memory.h>
