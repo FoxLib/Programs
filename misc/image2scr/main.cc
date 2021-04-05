@@ -19,6 +19,8 @@ int main(int argc, char** argv) {
     if      (strcmp(argv[1], "org") == 0) mode = 1;
     else if (strcmp(argv[1], "bw") == 0) mode = 2;
     else if (strcmp(argv[1], "floyd") == 0) mode = 3;
+    else if (strcmp(argv[1], "bw2") == 0) mode = 4;
+    else if (strcmp(argv[1], "bw3") == 0) mode = 5;
     else { printf("Неверный режим"); return 1; }
 
     if (m.load_ppm(argv[2])) { printf("Должен быть файл 256x192\n"); return 1; }
@@ -34,7 +36,7 @@ int main(int argc, char** argv) {
         m.clashing();
         m.scr2source();
     }
-    // Черно-белый
+    // Черно-белый bw
     else if (mode == 2) {
 
         m.grayscale();
@@ -45,6 +47,22 @@ int main(int argc, char** argv) {
     else if (mode == 3) {
 
         m.dither_floyd(1);
+        m.clashing();
+        m.scr2source();
+    }
+    // Черно-белый bw2
+    else if (mode == 4) {
+
+        m.grayscale();
+        m.dither_nearest(1);
+        m.clashing();
+        m.scr2source();
+    }
+    // Черно-белый bw3
+    else if (mode == 5) {
+
+        m.grayscale();
+        m.dither_bayer(1);
         m.clashing();
         m.scr2source();
     }
