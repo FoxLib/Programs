@@ -304,7 +304,7 @@ public:
     // -----------------------------------------------------------------
 
     // Вторая версия
-    void clashing_v2() {
+    void clashing_exact() {
 
         int i, j, k, x, y;
         struct SortColor t[2][16];
@@ -355,17 +355,14 @@ public:
 
             // Анализ цветов
             int back = 0, fore = 7;
-
+/*
             for (i = 0; i < 16; i++) { printf("%02d ", t[0][i].value); } printf("\n");
             for (i = 0; i < 16; i++) { printf("%02d ", t[1][i].value); } printf("\n");
             printf("\n----\n");
-
+*/
             // Абсолютно однозначные цвета
-            if (t[0][14].value == 0)     back = t[0][15].id;
-            else if (t[0][14].value < 4) back = t[0][15].id;
-
-            if (t[1][14].value == 0)     fore = t[1][15].id;
-            else if (t[1][14].value < 4) fore = t[1][15].id;
+            if (t[0][14].value == 0) back = t[0][15].id;
+            if (t[1][14].value == 0) fore = t[1][15].id;
 
             // Серый цвет как 1, иначе 0
             area_attr[32*y+x] = (back&7)<<3 | (fore&7);
