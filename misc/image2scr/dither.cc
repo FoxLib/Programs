@@ -51,7 +51,7 @@ public:
 
     DITHER() {
 
-        depth = 8;
+        depth = 8; // 16
 
         palette[0].r  = 0x00; palette[0].g = 0x00; palette[0].b = 0x00;  // 0 Черный
         palette[1].r  = 0x00; palette[1].g = 0x00; palette[1].b = 0x80;  // 1 Синий
@@ -79,8 +79,8 @@ public:
         if (fp == NULL) { printf("File not found\n"); exit(1); }
 
         fgets (buf, 256, fp); // P6
-        fgets (buf, 256, fp); // # Comment
-        if (buf[0] == '#') fgets (buf, 256, fp); // W H
+         // # Comment
+        do { fgets (buf, 256, fp); } while (buf[0] == '#');
         sscanf(buf, "%d %d", &width, &height);
         fgets (buf, 256, fp); // 255
 
@@ -138,11 +138,10 @@ public:
 
         fwrite(vbuf, 1, 6912,fp);
         fclose(fp);
-
     }
 
     // -----------------------------------------------------------------
-    void normalize() {
+    void normalize(int gray) {
 
         struct RGB max = {-1, -1, -1};
 
@@ -160,6 +159,7 @@ public:
 
         if (smax > 0) {
 
+            //float f = 128.0 / smax;
             float f = 128.0 / smax;
             for (int y = 0; y < height; y++)
             for (int x = 0; x < width; x++) {
@@ -167,14 +167,21 @@ public:
                 src[x][y].r *= f;
                 src[x][y].g *= f;
                 src[x][y].b *= f;
+
+                if (gray) {
+
+                    float f = (src[x][y].r + src[x][y].g + src[x][y].b)/3;
+                    src[x][y].r = f;
+                    src[x][y].g = f;
+                    src[x][y].b = f;
+                }
+
             }
         }
     }
 
-    // Процедура дизеринга
-    void dither() {
-
-        depth = 8;
+    // Процедура дизеринга (0=nearest 1=floyd)
+    void dither_floyd(int type) {
 
         // Копировать точки во временное хранение
         for (int y = 0; y < height; y++)
@@ -185,53 +192,98 @@ public:
         for (int y = 0; y < height; y++)
         for (int x = 0; x < width;  x++) {
 
-            struct RGB old = src[x][y];                 // Старые цвета
+            struct RGB old = source[x][y];              // Старые цвета
             int color_id   = search_nearest(old);       // Поиск ближайшего цвета из палитры
             RGB ncl        = palette[color_id];         // Заменить на новый цвет (из палитры)
             source[x][y]   = ncl;                       // Записать приблизительный цвет
             dest[x][y]     = color_id;                  // Полученный индекс цвета
 
-            // Вычисляем ошибку квантования
-            RGB quant;
+            if (type) {
 
-            quant.r = (old.r - ncl.r);
-            quant.g = (old.g - ncl.g);
-            quant.b = (old.b - ncl.b);
+                // Вычисляем ошибку квантования
+                RGB quant;
 
-            //   x 7
-            // 3 5 1
+                quant.r = (old.r - ncl.r);
+                quant.g = (old.g - ncl.g);
+                quant.b = (old.b - ncl.b);
 
-            // [+1, +0] 7/16
-            if (x + 1 < width) {
+                //   x 7
+                // 3 5 1
 
-                source[x + 1][y].r += (quant.r * 7.0/16.0);
-                source[x + 1][y].g += (quant.g * 7.0/16.0);
-                source[x + 1][y].b += (quant.b * 7.0/16.0);
+                // [+1, +0] 7/16
+                if (x + 1 < width) {
+
+                    source[x + 1][y].r += (quant.r * 7.0/16.0);
+                    source[x + 1][y].g += (quant.g * 7.0/16.0);
+                    source[x + 1][y].b += (quant.b * 7.0/16.0);
+                }
+
+                // [-1, +1] 3/16
+                if (x - 1 >= 0 && y + 1 < height) {
+
+                    source[x-1][y+1].r += (quant.r * 3.0/16.0);
+                    source[x-1][y+1].g += (quant.g * 3.0/16.0);
+                    source[x-1][y+1].b += (quant.b * 3.0/16.0);
+                }
+
+                // [+0, +1] 5/16
+                if (y + 1 < height) {
+
+                    source[x][y+1].r += (quant.r * 5.0/16.0);
+                    source[x][y+1].g += (quant.g * 5.0/16.0);
+                    source[x][y+1].b += (quant.b * 5.0/16.0);
+                }
+
+                // [+1, +1] 1/16
+                if (x + 1 < width && y + 1 < height) {
+
+                    source[x+1][y+1].r += (quant.r * 1.0/16.0);
+                    source[x+1][y+1].g += (quant.g * 1.0/16.0);
+                    source[x+1][y+1].b += (quant.b * 1.0/16.0);
+                }
             }
+        }
+    }
 
-            // [-1, +1] 3/16
-            if (x - 1 >= 0 && y + 1 < height) {
+    /**
+     * Дизеринг с помощью матрицы Байера
+     */
 
-                source[x-1][y+1].r += (quant.r * 3.0/16.0);
-                source[x-1][y+1].g += (quant.g * 3.0/16.0);
-                source[x-1][y+1].b += (quant.b * 3.0/16.0);
-            }
+    void ordered_dither()
+    {
+        int ditherSize = 8;
 
-            // [+0, +1] 5/16
-            if (y + 1 < height) {
+        float lookup[8][8] =
+        {
+            { 0, 32,  8, 40,  2, 34, 10, 42},
+            {48, 16, 56, 24, 50, 18, 58, 26},
+            {12, 44,  4, 36, 14, 46,  6, 38},
+            {60, 28, 52, 20, 62, 30, 54, 22},
+            { 3, 35, 11, 43,  1, 33,  9, 41},
+            {51, 19, 59, 27, 49, 17, 57, 25},
+            {15, 47,  7, 39, 13, 45,  5, 37},
+            {63, 31, 55, 23, 61, 29, 53, 21},
+        };
 
-                source[x][y+1].r += (quant.r * 5.0/16.0);
-                source[x][y+1].g += (quant.g * 5.0/16.0);
-                source[x][y+1].b += (quant.b * 5.0/16.0);
-            }
+        for (int y = 0; y < height; y++)
+        for (int x = 0; x < width;  x++)
+            source[x][y] = src[x][y];
 
-            // [+1, +1] 1/16
-            if (x + 1 < width && y + 1 < height) {
+        float f = 1.2, m = 32.0;
+        for (int y = 0; y < height; y++)
+        for (int x = 0; x < width;  x++) {
 
-                source[x+1][y+1].r += (quant.r * 1.0/16.0);
-                source[x+1][y+1].g += (quant.g * 1.0/16.0);
-                source[x+1][y+1].b += (quant.b * 1.0/16.0);
-            }
+            struct RGB new_cl = source[x][y];
+
+            // Процедура дизеринга
+            new_cl.r += (lookup[y&7][x&7])*f - m;
+            new_cl.g += (lookup[y&7][x&7])*f - m;
+            new_cl.b += (lookup[y&7][x&7])*f - m;
+
+            // Поиск ближайшего цвета из палитры
+            int color_id = search_nearest(new_cl);
+            source[x][y] = palette[color_id];
+            dest  [x][y] = color_id;
         }
     }
 

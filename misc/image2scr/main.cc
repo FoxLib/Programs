@@ -13,9 +13,11 @@ int main(int argc, char** argv) {
     if (argc <= 1) { printf("Требуется имя файла\n"); return 1; }
     if (m.load_ppm(argv[1])) { printf("Должен быть файл 256x192\n"); return 1; }
 
-    m.normalize();
-    m.dither();
+    m.normalize(1);
+    //m.dither_floyd(1);
+    m.ordered_dither();
     m.clashing();
+
     m.save_ppm(argc > 2 ? argv[2] : "result_output.ppm");
     m.save_scr(argc > 3 ? argv[3] : "result_output.scr");
 
