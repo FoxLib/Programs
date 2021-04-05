@@ -76,9 +76,11 @@ public:
 
         FILE* fp = fopen(filename, "rb");
 
+        if (fp == NULL) { printf("File not found\n"); exit(1); }
+
         fgets (buf, 256, fp); // P6
         fgets (buf, 256, fp); // # Comment
-        fgets (buf, 256, fp); // W H
+        if (buf[0] == '#') fgets (buf, 256, fp); // W H
         sscanf(buf, "%d %d", &width, &height);
         fgets (buf, 256, fp); // 255
 

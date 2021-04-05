@@ -15,8 +15,8 @@ int main(int argc, char** argv) {
     m.normalize();
     m.dither();
     m.clashing();
-    m.save_ppm("test.ppm");
-    m.save_scr("test.scr");
+    m.save_ppm("result_output.ppm");
+    m.save_scr("result_output.scr");
 
     return 0;
 }
