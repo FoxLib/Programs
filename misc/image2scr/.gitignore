@@ -1,3 +1,6 @@
 *.ppm
 *.scr
+*.mp4
 main
+dst/
+src/
