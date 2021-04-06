@@ -52,7 +52,7 @@ public:
 
     DITHER() {
 
-        depth = 8; // 16
+        depth = 8; // 8 | 16
 
         palette[0].r  = 0x00; palette[0].g = 0x00; palette[0].b = 0x00;  // 0 Черный
         palette[1].r  = 0x00; palette[1].g = 0x00; palette[1].b = 0xc0;  // 1 Синий
@@ -155,6 +155,8 @@ public:
     void halftoned() {
 
         struct RGB max = {-1, -1, -1};
+
+        if (depth > 8) return;
 
         for (int y = 0; y < height; y++)
         for (int x = 0; x < width; x++) {
@@ -377,9 +379,10 @@ public:
 
             int at = area_attr[32*(y>>3)+x];
             int ch = area_bits[x][y];
+            int hb = at & 0x40? 8 : 0;
 
-            RGB fr = palette[at & 7];
-            RGB bk = palette[(at>>3) & 7];
+            RGB fr = palette[hb | (at & 7)];
+            RGB bk = palette[hb | ((at>>3) & 7)];
 
             for (int i = 0; i < 8; i++) {
                 source[8*x+i][y] = (ch << i) & 128 ? fr : bk;
@@ -428,8 +431,8 @@ public:
                 // Подтянуть менее популярный цвет до яркости популярного
                 if ((max1_id&8) != (max2_id&8)) max2_id = (max2_id & 7) | (max1_id&8);
 
-                max1_id |= 8;
-                max2_id |= 8;
+                //max1_id |= 8;
+                //max2_id |= 8;
 
                 struct RGB attr = palette[max1_id];
                 struct RGB back = palette[max2_id];
@@ -461,7 +464,7 @@ public:
                     }
                 }
 
-                area_attr[y*32+x] = 0x00 | (max1_id&7) | ((max2_id&7)<<3); // 0x40
+                area_attr[y*32+x] = (max1_id & 8 ? 0x40 : 0x00) | (max1_id&7) | ((max2_id&7)<<3); // 0x40
             }
         }
     }

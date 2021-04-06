@@ -4,6 +4,8 @@ SCALE=-vf "scale=w=1280:h=960,pad=width=1920:height=1080:x=320:y=60:color=black"
 
 all:
 	g++ -std=c++11 main.cc -o main
+test:
+	./main org test.ppm a.ppm b.scr
 img:
 	convert input.jpg -auto-gamma -modulate 100,150 -resize 256x192^ -gravity Center -extent 256x192 output.ppm
 	./main floyd output.ppm a.ppm b.scr
