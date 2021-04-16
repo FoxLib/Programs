@@ -4,6 +4,9 @@
 #include "lodepng.h"
 #include "lodepng.cc"
 
+int factor;
+int width, height;
+
 unsigned char  memory[6912];
 unsigned int*  image;
 
@@ -30,7 +33,6 @@ uint get_color(int color) {
 
     return 0;
 };
-
 
 // Обновить 8 бит
 void update_charline(int address, int flash_state) {
@@ -60,20 +62,28 @@ void update_charline(int address, int flash_state) {
         clr = get_color(clr);
         clr = ((clr & 0xff) << 16) | ((clr & 0xff00)) | ((clr & 0xff0000)>>16);
 
-        image[8*x + j + 256*y] = 0xff000000 | clr;
+        for (int a = 0; a < factor; a++)
+        for (int b = 0; b < factor; b++)
+            image[factor*(8*x+j)+a + width*(factor*y+b)] = 0xff000000 | clr;
     }
 }
 
 int main(int argc, char** argv) {
 
-    unsigned width  = 256,
-             height = 192;
-
-
-    image = (unsigned int*) malloc(width * height * 4);
-    unsigned x, y;
-
     if (argc < 3) { printf("img2png file.scr vulcan.png\n"); return 1; }
+
+    factor = 1;
+    width  = 256;
+    height = 192;
+
+    if (argc >= 4) {
+
+        sscanf(argv[3], "%d", & factor);
+        width  *= factor;
+        height *= factor;
+    }
+
+    image = (unsigned int*) malloc(4*width*height);
 
     FILE* fp = fopen(argv[1], "rb+");
     fread(memory, 1, 6912, fp);
