@@ -70,7 +70,7 @@ void update_charline(int address, int flash_state) {
 
 int main(int argc, char** argv) {
 
-    if (argc < 3) { printf("scr2png file.scr vulcan.png\n"); return 1; }
+    if (argc < 3) { printf("scr2png file.scr vulcan.png [1,2,..]\n"); return 1; }
 
     factor = 1;
     width  = 256;
