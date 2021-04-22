@@ -7,4 +7,4 @@ for ($y = 0; $y < 104; $y++) {
     $binout .= chr($address & 255) . chr(($address>>8) & 255);
     // echo sprintf("%02x: %04x\n", $y, $address);
 }
-file_put_contents("ytable.bin", $binout);
+file_put_contents("../ytable.bin", $binout);
