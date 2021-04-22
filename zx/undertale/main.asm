@@ -3,7 +3,21 @@
 
         di
 
+        ; Очистка области атрибутов
+; ----------------------------------------------------------------------
+        ld      sp, $5b00
+        ld      bc, $0080
+        ld      hl, $4747
+CLS1:   push    hl
+        djnz    CLS1
+        ld      b, c
+CLS2:   push    hl
+        djnz    CLS2
+        ld      b, c
+; ----------------------------------------------------------------------
+
         ; Декомпрессия следующей картинки
+        ld      sp, $ffff
         ld      hl, SCR1
         ld      de, decompress
         call    dzx0
@@ -12,38 +26,102 @@
         call    DRAWBG
 
         ; Перенос байта
+        ld      a, 0
         ld      hl, decompress
-        ld      iy, DMASK0+8*0
         call    REDRAW
+
+        ; --- печатается текст ---
+
+        ld      de, str0
+
+        ld      hl, $48c3       ; Начало текста
+        ld      b, 22
+M1:     ld      a, (de)
+        inc     de
+        call    PRN
+        djnz    M1
+
+halt
+
         jr      $
 
 ; ----------------------------------------------------------------------
-; Отрисовка картинки
+; Печать одного символа A в режиме телетайпа -> HL
 ; ----------------------------------------------------------------------
 
-REDRAW: push    hl              ; Чтобы не писать заново
+PRN:    push    hl
+        push    de
+        push    bc
+        ex      de, hl          ; Сохранить HL
+        ld      bc, FONTS
+        ld      l, a
+        ld      h, 0
+        add     hl, hl
+        add     hl, hl
+        add     hl, hl
+        add     hl, hl
+        add     hl, bc
+        ex      de, hl          ; DE = 16*A + FONTS
+        ld      c, 2
+PRN2:   ld      b, 8
+PRN1:   ld      a, (de)         ; Нарисовать половину символа
+        ld      (hl), a
+        inc     de
+        inc     h
+        djnz    PRN1
+        ld      a, h            ; Вернуть H на место
+        sub     $08
+        ld      h, a
+        ld      a, l
+        add     $20             ; Проверка на превышение L
+        jr      nc, PRN3
+        ex      af, af'
+        ld      a, h
+        add     $08             ; Перенос к следующему блоку
+        ld      h, a
+        ex      af, af'
+PRN3:   ld      l, a
+        dec     c
+        jr      nz, PRN2
+        pop     bc
+        pop     de
+        pop     hl
+        inc     l
+        ret
+
+; ----------------------------------------------------------------------
+; Отрисовка картинки HL, A-затемнение [0..8]
+; ----------------------------------------------------------------------
+
+REDRAW: push    hl              ; Сохранить для повторного использования
+        push    af
+        ld      iyl, a
+        ld      iyh, 0
+        ld      bc, DMASK0
+        add     iy, iy
+        add     iy, iy
+        add     iy, iy
+        add     iy, bc          ; IX = DMASK0 + 8*A
         ld      c, 104          ; 104 строки
         ld      (IYhold), iy    ; Сохранение указателя дизеринга
         ld      ix, YTABLE      ; Предвычисленная таблица Y-позиции
         ld      a, 8            ; Для циклического вращения IY
         ex      af, af'
-
-        ; Следующий табличный адрес [0..103]
-DRAW2:  ld      d, (ix+1)
+DRAW2:  ld      d, (ix+1)       ; Следующий табличный адрес [0..103]
         ld      e, (ix+0)
         inc     ix
         inc     ix
-        ld      a, (iy+0)       ; Маска покрытия
+        ld      a, (iy+0)       ; Маска дизеринга для затемнения
         ld      (MODIF+1), a    ; Модифицировать код для наложения маски
         ld      b, 25           ; 25 x 8 = 200 пикселей
-        ; --- 1145T Рисование одной линии
+; --- 1145T Рисование одной линии -----
 DRAW1:  ld      a, (hl)         ; 7T Основной цикл рисования
 MODIF:  or      $00             ; 7T Самомодицифирующийся код
         ld      (de), a         ; 7T
         inc     de              ; 6T
         inc     hl              ; 6T
         djnz    DRAW1           ; 13T/8T
-        ; ---
+; -------------------------------------
         inc     iy              ; К следующему циклу
         ex      af, af'
         dec     a
@@ -53,6 +131,7 @@ MODIF:  or      $00             ; 7T Самомодицифирующийся к
 DRAW3:  ex      af, af'
         dec     c               ; К следующей линии
         jr      nz, DRAW2
+        pop     af
         pop     hl
         ret
 
@@ -74,18 +153,15 @@ LINE1:  ld      (hl), a
         ret
 
 ; ----------------------------------------------------------------------
-; Данные
-; ----------------------------------------------------------------------
-
-IYhold: defw    0
-
-; ----------------------------------------------------------------------
 ; Компрессированные данные со скринами (около 12 кб)
 ; ----------------------------------------------------------------------
 
         include "dzx0_standard.asm"
+        include "data/string.asm"
+
 YTABLE: incbin  "data/ytable.bin"
 DMASK0: incbin  "data/dither.bin"
+FONTS:  incbin  "data/fonts.bin"
 
 SCR1:   incbin  "screen/screen1.bin"
 SCR2:   incbin  "screen/screen2.bin"
@@ -96,5 +172,11 @@ SCR6:   incbin  "screen/screen6.bin"
 SCR7:   incbin  "screen/screen7.bin"
 SCR8:   incbin  "screen/screen8.bin"
 SCR9:   incbin  "screen/screen9.bin"
+
+; ----------------------------------------------------------------------
+; Данные
+; ----------------------------------------------------------------------
+
+IYhold: defw    0
 
 decompress:
