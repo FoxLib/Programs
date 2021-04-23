@@ -24,16 +24,37 @@ CLS2:   push    hl
         ; Установка прерывания IM2
         ld      a, $65
         ld      i, a
-        im      2
+        ld      a, r
+        and     $7f
+        ld      r, a            ; Сброс бита R[7] если он там был
         ld      hl, IM2
-        ld      ($65ff), hl
+        ld      sp, $65ff
+        ex      (sp), hl
+        im      2
         ei
 
-        ; Декомпрессия следующей картинки
-        ld      sp, $65fe
-        ld      hl, SCR1
-        ld      de, DECOMP
-        call    dzx0
+        ; Первичная отрисовка
+        call    NEXTSCR         ; Загрузить следующий экран
+        xor     a
+        call    DRAWBG          ; Чтобы затереть белые атрибуты
+        ld      a, (DithV)
+        ld      hl, DECOMP
+        call    REDRAW          ; "Невидимое" рисование
+        ld      a, $30
+        call    DRAWBG          ; Сверхскоростное появление на экране
+
+        jr $
+
+        ; Ожидание появления события
+        ; -------------------------------
+MAIN:   ld      a, r
+        add     a, a
+        jr      nc, MAIN
+        ; -------------------------------
+        ; Начало обработки события в цикле
+        ; -------------------------------
+
+        jr      $
 
         ; Залить область
         call    DRAWBG
@@ -57,138 +78,26 @@ M1:     ld      a, (de)
         jr      $
 
 ; ----------------------------------------------------------------------
-; Обработка события IM 2
+; Обработчики и данные
 ; ----------------------------------------------------------------------
 
-IM2:    push    hl
-        push    de
-        push    bc
-        push    af
+        ; Обработчики
+        include "routines.asm"
 
-        pop     af
-        pop     bc
-        pop     de
-        pop     hl
-        ret
-
-; ----------------------------------------------------------------------
-; Печать одного символа A в режиме телетайпа -> HL
-; ----------------------------------------------------------------------
-
-PRN:    push    hl
-        push    de
-        push    bc
-        ex      de, hl          ; Сохранить HL
-        ld      bc, FONTS
-        ld      l, a
-        ld      h, 0
-        add     hl, hl
-        add     hl, hl
-        add     hl, hl
-        add     hl, hl
-        add     hl, bc
-        ex      de, hl          ; DE = 16*A + FONTS
-        ld      c, 2
-PRN2:   ld      b, 8
-PRN1:   ld      a, (de)         ; Нарисовать половину символа
-        ld      (hl), a
-        inc     de
-        inc     h
-        djnz    PRN1
-        ld      a, h            ; Вернуть H на место
-        sub     $08
-        ld      h, a
-        ld      a, l
-        add     $20             ; Проверка на превышение L
-        jr      nc, PRN3
-        ex      af, af'
-        ld      a, h
-        add     $08             ; Перенос к следующему блоку
-        ld      h, a
-        ex      af, af'
-PRN3:   ld      l, a
-        dec     c
-        jr      nz, PRN2
-        pop     bc
-        pop     de
-        pop     hl
-        inc     l
-        ret
-
-; ----------------------------------------------------------------------
-; Отрисовка картинки HL, A-затемнение [0..8]
-; ----------------------------------------------------------------------
-
-REDRAW: push    hl              ; Сохранить для повторного использования
-        push    af
-        ld      iyl, a
-        ld      iyh, 0
-        ld      bc, DMASK0
-        add     iy, iy
-        add     iy, iy
-        add     iy, iy
-        add     iy, bc          ; IX = DMASK0 + 8*A
-        ld      c, 104          ; 104 строки
-        ld      (IYhold), iy    ; Сохранение указателя дизеринга
-        ld      ix, YTABLE      ; Предвычисленная таблица Y-позиции
-        ld      a, 8            ; Для циклического вращения IY
-        ex      af, af'
-DRAW2:  ld      d, (ix+1)       ; Следующий табличный адрес [0..103]
-        ld      e, (ix+0)
-        inc     ix
-        inc     ix
-        ld      a, (iy+0)       ; Маска дизеринга для затемнения
-        ld      (MODIF+1), a    ; Модифицировать код для наложения маски
-        ld      b, 25           ; 25 x 8 = 200 пикселей
-; --- 1145T Рисование одной линии -----
-DRAW1:  ld      a, (hl)         ; 7T Основной цикл рисования
-MODIF:  or      $00             ; 7T Самомодицифирующийся код
-        ld      (de), a         ; 7T
-        inc     de              ; 6T
-        inc     hl              ; 6T
-        djnz    DRAW1           ; 13T/8T
-; -------------------------------------
-        inc     iy              ; К следующему циклу
-        ex      af, af'
-        dec     a
-        jr      nz, DRAW3       ; Проверить, что не достигло 0
-        ld      iy, (IYhold)    ; Восстановить IY
-        ld      a, 8            ; Восстановить счетчик
-DRAW3:  ex      af, af'
-        dec     c               ; К следующей линии
-        jr      nz, DRAW2
-        pop     af
-        pop     hl
-        ret
-
-; ----------------------------------------------------------------------
-; Заливка области картинки
-; ----------------------------------------------------------------------
-
-DRAWBG: ld      hl, $5803
-        ld      a, $30
-        ld      de, 7
-        ld      c, 13
-LINE2:  ld      b, 25
-LINE1:  ld      (hl), a
-        inc     hl
-        djnz    LINE1
-        add     hl, de
-        dec     c
-        jr      nz, LINE2
-        ret
-
-; ----------------------------------------------------------------------
-; Компрессированные данные со скринами (около 12 кб)
-; ----------------------------------------------------------------------
-
+        ; Декомпрессор
         include "dzx0_standard.asm"
-        include "data/string.asm"
+
+        ; Список строк
+STRG:   include "data/string.asm"
+
+        ; Список событий
+EVTLST: include "data/events.asm"
 
 YTABLE: incbin  "data/ytable.bin"
 DMASK0: incbin  "data/dither.bin"
 FONTS:  incbin  "data/fonts.bin"
 
+        ; Компрессированные данные со скринами (около 12 кб)
 SCR1:   incbin  "screen/screen1.bin"
 SCR2:   incbin  "screen/screen2.bin"
 SCR3:   incbin  "screen/screen3.bin"
@@ -203,4 +112,12 @@ SCR9:   incbin  "screen/screen9.bin"
 ; Данные
 ; ----------------------------------------------------------------------
 
-IYhold: defw    0
+EVaddr: defw    EVTLST      ; Адрес последнего байта события в потоке
+IYhold: defw    0           ; Временное значение для IY (дизеринг)
+Delay:  defb    0           ; Время (1/50 сек) до следующего события
+DithV:  defb    0           ; Текущее значение затемнения (от 0 до 8)
+
+; Таблица с экранами
+SCRPTR: defw    SCRLST
+SCRLST: defw    SCR1, SCR2, SCR3, SCR4, SCR5, SCR6, SCR7, SCR8, SCR9
+
