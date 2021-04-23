@@ -95,10 +95,13 @@ IM2NEXTSCR: ld      a, 0xff         ; Распаковка нового экра
 ; 04: Перенести на другую строку
 ; ----------------------------------------------------------------------
 
-IM2CRLF:    ld      hl, (NEXTPOS)
+IM2CRLF:    ld      b, (hl)         ; Отступ обычно 04h
+            inc     hl
+            ld      (EVAddr), hl
+            ld      hl, (NEXTPOS)
             ld      a, l
             and     $e0
-            or      $04
+            or      b
             ld      l, a
             add     $60
             ld      l, a
@@ -288,9 +291,9 @@ AYREG:      push    bc
             ret
 
 ; Значения по умолчанию
-AYDefRegs:  defb    0x00, 0x01  ; 0,1 A тон (треугольник)
+AYDefRegs:  defb    0x00, 0x01  ; 0,1 A тон (saw)
             defb    0x00, 0x04  ; 2,3 B тон (отключен)
-            defb    0x00, 0x08  ; 4,5 C тон (пила)
+            defb    0x00, 0x08  ; 4,5 C тон (square)
             defb    0x02        ; 6   Период шума 15 из 32
             defb    11101111b   ; 7   Активация
             defb    0x0f        ; 8   A vol & env
