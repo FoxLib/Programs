@@ -31,7 +31,6 @@ CLS2:   push    hl
         ld      sp, $65ff
         ex      (sp), hl
         im      2
-        ei
 
         ; Первичная отрисовка
         call    NEXTSCR         ; Загрузить следующий экран
@@ -42,32 +41,21 @@ CLS2:   push    hl
         call    REDRAW          ; "Невидимое" рисование
         ld      a, $30
         call    DRAWBG          ; Сверхскоростное появление на экране
-
-        jr $
+        ei
 
         ; Ожидание появления события
         ; -------------------------------
 MAIN:   ld      a, r
-        add     a, a
-        jr      nc, MAIN
+        and     $7f
+        jr      z, MAIN
+        ld      r, a
         ; -------------------------------
         ; Начало обработки события в цикле
         ; -------------------------------
 
         jr      $
 
-        ; Залить область
-        call    DRAWBG
-
-        ; Перенос байта
-        ld      a, 0
-        ld      hl, DECOMP
-        call    REDRAW
-
-        ; --- печатается текст ---
-
         ld      de, str0
-
         ld      hl, $48c4       ; Начало текста
         ld      b, 21
 M1:     ld      a, (de)
@@ -91,7 +79,7 @@ M1:     ld      a, (de)
 STRG:   include "data/string.asm"
 
         ; Список событий
-EVTLST: include "data/events.asm"
+EVTLST: include "events.asm"
 
 YTABLE: incbin  "data/ytable.bin"
 DMASK0: incbin  "data/dither.bin"
@@ -112,12 +100,17 @@ SCR9:   incbin  "screen/screen9.bin"
 ; Данные
 ; ----------------------------------------------------------------------
 
-EVaddr: defw    EVTLST      ; Адрес последнего байта события в потоке
-IYhold: defw    0           ; Временное значение для IY (дизеринг)
-Delay:  defb    0           ; Время (1/50 сек) до следующего события
-DithV:  defb    0           ; Текущее значение затемнения (от 0 до 8)
+IYhold:     defw    0           ; Временное значение для IY (дизеринг)
+DithV:      defb    0           ; Текущее значение затемнения (от 0 до 8)
+EVAddr:     defw    EVTLST      ; Адрес последнего байта события в потоке
+
+; Текущее событие
+KEvent:     defb    0           ; Время (1/50 сек) до следующего события
+            defb    0           ; Тип события
 
 ; Таблица с экранами
-SCRPTR: defw    SCRLST
-SCRLST: defw    SCR1, SCR2, SCR3, SCR4, SCR5, SCR6, SCR7, SCR8, SCR9
+SCRPTR:     defw    SCRLST
+SCRLST:     defw    SCR1, SCR2, SCR3, SCR4, SCR5, SCR6, SCR7, SCR8, SCR9
+NEXTSYM:    defw    str0        ; Адрес печатаемого символа
+NEXTPOS:    defw    $48c4       ; Первая позиция текста
 
