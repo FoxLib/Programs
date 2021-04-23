@@ -30,8 +30,8 @@ $arr[] = "4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 40T 40T 60T";
 $arr[] = "0K 1R7 1R6 1R5 1R4 1R3 1R2 1R1 4R0";
 
 // Пятый экран
-$arr[] = "4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4LF";
-$arr[] = "4T 4T 4T 4T 4T 4T 50T";
+$arr[] = "4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 15LF";
+$arr[] = "4T 4T 4T 4T 4T 4T 150T";
 $arr[] = "1R1 1R2 1R3 1R4 1R5 1R6 1R7 1R8 0K 1N 1R7 1R6 1R5 1R4 1R3 1R2 1R1 1R0";
 
 // Шестой экран
