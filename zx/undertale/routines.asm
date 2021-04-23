@@ -262,7 +262,17 @@ LINE1:      ld      (hl), a
 ; AY-инициализация
 ; ----------------------------------------------------------------------
 
-AYINIT:     ld      hl, AYDefRegs
+AYINIT:     ; Включение AY
+            ld      bc, $243B
+            ld      a, 9
+            out     (c), a
+            ld      b, $25
+            in      a, (c)
+            and     $fc
+            or      $01
+            out     (c), a
+
+            ld      hl, AYDefRegs
             ld      d, 0
             ld      e, 13
 AYINITn:    ld      bc, $fffd
