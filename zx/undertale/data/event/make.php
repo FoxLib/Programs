@@ -2,6 +2,9 @@
 
 $arr = [];
 
+
+
+
 // Первый экран
 $arr[] = "4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4LF";
 $arr[] = "4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4LF";
@@ -17,14 +20,21 @@ $arr[] = "0K 1R1 1R2 1R3 1R4 1R5 1R6 1R7 0K 1N 2R8 1R7 1R6 1R5 1R4 1R3 1R2 1R1 1
 $arr[] = "4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4LF";
 $arr[] = "4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4LF";
 $arr[] = "4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 85LF";
-$arr[] = "0K 1R1 1R2 1R3 1R4 1R5 1R6 1R7 0K  2R8 1R7 1R6 1R5 1R4 1R3 1R2 1R1 1R0";
+$arr[] = "1R1 1R2 1R3 1R4 1R5 1R6 1R7 0K 2R8 1R7 1R6 1R5 1R4 1R3 1R2 1R1 1R0";
 
 // Четвертый экран
 $arr[] = "4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4LF";
 $arr[] = "4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4LF";
 $arr[] = "4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 140LF";
-$arr[] = "0K 1R1 1R2 1R3 1R4 1R5 1R6 1R7 0K 1N 2R8 1R7 1R6 1R5 1R4 1R3 1R2 1R1 1R0";
+$arr[] = "1R1 1R2 1R3 1R4 1R5 1R6 1R7 0K 1N 25R8 ";
 
+// Четвертый экран
+$arr[] = "4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 40T 40T 60T";
+$arr[] = "0K 1R7 1R6 1R5 1R4 1R3 1R2 1R1 4R0";
+
+// Пятый экран
+$arr[] = "4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4T 4LF";
+$arr[] = "4T 4T 4T 4T 4T 4T 50T";
 
 // ---------------------------------------------------------------------
 
