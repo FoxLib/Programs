@@ -1,6 +1,6 @@
 
-        ; Буфер A28h (2600) байт для распаковки экрана
-        org     $6580
+        org     $6580       ; Начало после Бейсик-программы
+DECOMP: equ     $5b00       ; Буфер A28h (2600) байт для распаковки экрана
 
         di
 
@@ -18,7 +18,7 @@ CLS1:   push    hl
         ; Декомпрессия следующей картинки
         ld      sp, $ffff
         ld      hl, SCR1
-        ld      de, decompress
+        ld      de, DECOMP
         call    dzx0
 
         ; Залить область
@@ -26,7 +26,7 @@ CLS1:   push    hl
 
         ; Перенос байта
         ld      a, 0
-        ld      hl, decompress
+        ld      hl, DECOMP
         call    REDRAW
 
         ; --- печатается текст ---
@@ -192,5 +192,3 @@ SCR9:   incbin  "screen/screen9.bin"
 ; ----------------------------------------------------------------------
 
 IYhold: defw    0
-
-decompress:
