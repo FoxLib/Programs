@@ -272,12 +272,12 @@ AYINIT:     ; Включение AY
             or      $01
             out     (c), a
 
+            ; Инициализировать регистры
             ld      hl, AYDefRegs
             ld      d, 0
             ld      e, 13
 AYINITn:    ld      bc, $fffd
-            ld      a, d
-            out     (c), a
+            out     (c), d
             ld      b, $bf
             ld      a, (hl)
             out     (c), a
@@ -291,11 +291,9 @@ AYINITn:    ld      bc, $fffd
 AYREG:      push    bc
             push    af
             ld      bc, $fffd
-            ld      a, d
-            out     (c), a
+            out     (c), d
             ld      b, $bf
-            ld      a, e
-            out     (c), a
+            out     (c), e
             pop     af
             pop     bc
             ret
