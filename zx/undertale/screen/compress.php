@@ -48,7 +48,6 @@ function convert($file, $fileout) {
     }
 
     file_put_contents($fileout, $out);
-    // imagepng($dst, "result.png");
 }
 
 for ($i = 1; $i < 10; $i++) {
@@ -59,3 +58,6 @@ for ($i = 1; $i < 10; $i++) {
 }
 
 scrcorrect();
+
+@unlink('screen.bin');
+echo `zx0 src/screen.scr screen.bin`;
