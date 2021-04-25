@@ -525,8 +525,8 @@ void SDL2framework::print(const char* s) {
 // Математика
 // -----------------------------------------------------------------
 
-// Арктангенс
-float SDL2framework::atn(float x, float y) { return (atan2(y, x) + M_PI) / (2*M_PI); }
+// Арктангенс [0..1]
+float SDL2framework::atn(float x, float y) { return (atan2(-y, -x) + M_PI) / (2*M_PI); }
 
 // Псевдослучайное число
 float SDL2framework::rnd(float x, float y) {
