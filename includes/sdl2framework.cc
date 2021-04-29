@@ -31,6 +31,7 @@ SDL2framework::SDL2framework(int mode) {
     scale = 1;
     useindex = 0;
     int w = 160, h = 120;
+    mouse_x = mouse_y = mouse_st = 0;
 
     switch (mode) {
 
@@ -217,6 +218,7 @@ int SDL2framework::poll() {
                 case SDL_QUIT:
                     return 0;
 
+                // KEYB
                 case SDL_KEYDOWN:
 
                     event_cause |= EventKeyDown;
@@ -228,40 +230,41 @@ int SDL2framework::poll() {
                     event_cause |= EventKeyUp;
                     access_key_up = get_key_ascii(event) | 0x80;
                     break;
-/*
+
+                // MOUSE
                 case SDL_MOUSEMOTION:
 
-                    mouse.x = event.motion.x / qb_screen_factor;
-                    mouse.y = event.motion.y / qb_screen_factor;
-                    sdl_event_trigger |= EVT_MOUSE_MOVE;
+                    mouse_x = event.motion.x / scale;
+                    mouse_y = event.motion.y / scale;
+                    event_cause |= EventMouseMotion;
                     break;
 
                 case SDL_MOUSEBUTTONDOWN:
 
-                    mouse.x = event.motion.x / qb_screen_factor;
-                    mouse.y = event.motion.y / qb_screen_factor;
+                    mouse_x = event.motion.x / scale;
+                    mouse_y = event.motion.y / scale;
 
                     switch (event.motion.state) {
-                        case SDL_BUTTON_LEFT:  mouse.st |= LF_CLICK; break;
-                        case SDL_BUTTON_RIGHT: mouse.st |= RT_CLICK; break;
+                        case SDL_BUTTON_LEFT:  mouse_st |= 1; break;
+                        case SDL_BUTTON_RIGHT: mouse_st |= 2; break;
                     }
 
-                    sdl_event_trigger |= EVT_MOUSE_DOWN;
+                    event_cause |= EventMouseDown;
                     break;
 
                 case SDL_MOUSEBUTTONUP:
 
-                    mouse.x = event.motion.x / qb_screen_factor;
-                    mouse.y = event.motion.y / qb_screen_factor;
+                    mouse_x = event.motion.x / scale;
+                    mouse_y = event.motion.y / scale;
 
                     switch (event.motion.state) {
-                        case SDL_BUTTON_LEFT:  mouse.st &= ~LF_CLICK; break;
-                        case SDL_BUTTON_RIGHT: mouse.st &= ~RT_CLICK; break;
+                        case SDL_BUTTON_LEFT:  mouse_st &= ~1; break;
+                        case SDL_BUTTON_RIGHT: mouse_st &= ~2; break;
                     }
 
-                    sdl_event_trigger |= EVT_MOUSE_UP;
+                    event_cause |= EventMouseUp;
                     break;
-*/
+
                 default:
                     break;
 

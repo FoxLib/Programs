@@ -4,6 +4,9 @@ enum SDL2FrameworkEvents {
     EventUpdateScreen   = 1,
     EventKeyDown        = 2,
     EventKeyUp          = 4,
+    EventMouseDown      = 8,
+    EventMouseUp        = 16,
+    EventMouseMotion    = 32,
 };
 
 enum SDL2FrameworkKeyASCII {
@@ -628,6 +631,7 @@ protected:
     int width, height, scale;
     int color_fore, color_back, font_height;
     int loc_x, loc_y;
+    int mouse_x, mouse_y, mouse_st;
 
 public:
 
@@ -640,9 +644,14 @@ public:
     int h() { return height / scale; }
 
     // Наличие нажатой клавиши
-    int key_down() { return (event_cause & EventKeyDown) ? access_key_dn : 0; }
-    int key_up()   { return (event_cause & EventKeyUp)   ? access_key_up : 0; }
-    int timer()    { return (event_cause & EventUpdateScreen); }
+    int key_down()   { return (event_cause & EventKeyDown) ?   access_key_dn : 0; }
+    int key_up()     { return (event_cause & EventKeyUp)   ?   access_key_up : 0; }
+    int mouse_down() { return (event_cause & EventMouseDown) ? 1 : 0; }
+    int mouse_up()   { return (event_cause & EventMouseUp) ?   1 : 0; }
+    int mouse_move() { return (event_cause & EventMouseMotion) ? 1 : 0; }
+    int get_mouse_x() { return mouse_x; }
+    int get_mouse_y() { return mouse_y; }
+    int timer()      { return (event_cause & EventUpdateScreen); }
     void color(int fr, int bg) { color_fore = fr; color_back = bg; }
 
     // Алиасы
