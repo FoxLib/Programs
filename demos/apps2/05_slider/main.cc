@@ -10,7 +10,7 @@ float speed_x, speed_y;
 
 void update() {
 
-    for (int y = 0; y < 640; y++)
+    for (int y = 0; y < 480; y++)
     for (int x = 0; x < 640; x++) {
         uint8_t b = ((x - curr_x) ^ (y - curr_y));
         win->pset(x, y, -win->rgb(b, b, b));
@@ -21,8 +21,8 @@ void update() {
         curr_x += speed_x;
         curr_y += speed_y;
 
-        speed_x *= 0.92;
-        speed_y *= 0.92;
+        speed_x *= 0.97;
+        speed_y *= 0.97;
     }
 }
 
