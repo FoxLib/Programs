@@ -1,2 +1,0 @@
-all:
-	php compress.php
