@@ -1,11 +1,15 @@
 
+            ; bp+0 B, C, D, E, H, L; AF
+            ; bp+8 flags
+            ; bp+10 sp
+
             org     7c00h
             macro   brk { xchg bx, bx}
             macro   instr a, b, c {
                 db b, a
                 dw c
             }
-            IPS     equ 1
+            IPS     equ 64
 
             cld
             cli
@@ -23,12 +27,13 @@
             mov     ax, $0800
             mov     ds, ax              ; DS=8000h
             mov     bp, 0x4000
-            mov     si, 0x0001          ; Регистр PC
+            mov     si, 0x5c00          ; Регистр PC=$5C00 с программой
+            call    savef
             sti
             jmp     $                   ; Обработка в прерывании INT 8h
 
 ; Инструкция не распознана
-error:      ;brk
+error:      brk
             jmp     $
 
 ; Выполнение цикла
@@ -87,15 +92,16 @@ timer:
             ; Исполнение блока инструкции
             mov     cx, IPS               ; N инструкции за 1 кадр
 .L1:        push    cx
-            call    savef
             lodsb
             mov     bx, [bp+4]          ; bx=hl
+            xchg    bh, bl              ; потому что первый идет H, потом L
             mov     di, pattern
 @@:         mov     dx, [cs:di]
             add     di, 4
             and     dh, al
             cmp     dl, dh
             jne     @b
+
             call    word [cs:di-2]      ; Вызвать обработчик инструкции
             pop     cx
             loop    .L1
@@ -120,11 +126,67 @@ ldi8:       mov     ah, [si]
             call    setreg8di
             ret
 
+            ; LD r16, #
+; ----------------------------------------------------------------------
+ldnn:       call    get53di
+            lodsw
+            xchg    ah, al
+            call    spadjust
+            mov     [bp+di], ax     ; BC,DE,HL,SP
+            ret
+
+            ; INC|DEC r16
+; ----------------------------------------------------------------------
+inc16:      call    getreg16
+            inc     dx
+.end:       call    setr16
+            ret
+dec16:      call    getreg16
+            dec     dx
+            jmp     inc16.end
+
+            ; Получение регистра 16
+getreg16:   call    get53di
+            call    spadjust
+            call    getr16
+            ret
+
+            ; INC/DEC r8
+; ----------------------------------------------------------------------
+incdec8:
+            call    get53di
+            call    getreg8lo.dirdi
+            test    al, 1
+            jne     .dec
+            call    loadf
+            add     ah, 1
+            jmp     @f
+.dec:       call    loadf
+            sub     ah, 1
+@@:         call    savef
+            call    setreg8di
+            ret
+
+            ; JR cc, *
+; ----------------------------------------------------------------------
+jrcc:
+            call    get53di
+            and     di, $03
+            mov     al, [cs:jumptable+di]
+            mov     [.modif], al
+            call    loadf
+.modif:     jne     .done
+            inc     si              ; Перехода нет
+            ret
+.done:      call    jump8           ; Переход одобрен
+            ret
+
 ; ----------------------------------------------------------------------
             ; <alu> a,imm
 aluimm:     mov     ah, [si]
             inc     si
             jmp     alues.exec
+
             ; <alu> a,r8
 alues:      call    getreg8lo       ; AH=значение регистра
 .exec:      call    get53di         ; DI=номер операции АЛУ
@@ -147,7 +209,7 @@ replacealu: db 0x00, 0x10, 0x28, 0x18, 0x20, 0x30, 0x08, 0x38
 ; Прочесть регистр DI => AH
 ; ----------------------------------------------------------------------
 getreg8lo:  mov     di, ax      ; Регистр
-            and     di, 7
+.dirdi:     and     di, 7
             cmp     di, 6
             mov     ah, [bp+di]
             jne     @f          ; Значение из регистра
@@ -164,27 +226,57 @@ get53di:    mov     di, ax
 ; Сохранить AH в регистр номер DI
 ; ----------------------------------------------------------------------
 setreg8di:  cmp     di, 6
+            je      @f
             mov     [bp+di], ah
-            jne     @f
-            mov     [bx], ah
-@@:         ret
+            ret
+@@:         mov     [bx], ah
+            ret
+
+; DX=reg16 по DI
+getr16:     mov     dx, [bp+di]
+            xchg    dh, dl
+            ret
+setr16:     xchg    dh, dl
+            mov     [bp+di], dx
+            ret
 
 ; Сохранение флагов
 ; ----------------------------------------------------------------------
-loadf:      push    word [bp+8]
+loadf:      push    word [bp+16]
             popf
             ret
 savef:      pushf
-            pop     word [bp+8]
+            pop     word [bp+16]
+            ret
+
+            ; DI=6 -> DI=10 (Коррекция на регистр SP)
+spadjust:   cmp     di, 6
+            jne     @f
+            add     di, 4           ; DI=10
+@@:         ret
+
+            ; Выполнение JR
+jump8:      lodsb
+            cbw
+            add     si, ax
             ret
 
 ; Цветовая таблица
 colortable: db      0, 1, 4, 5, 2, 3, 6, 7
             db      0, 9,12,13,10,11,14,15
 
+; NZ,Z,NC,C
+jumptable:  db      0x75, 0x74, 0x73, 0x72
+
 ; ----------------------------------------------------------------------
 pattern:
 
+    instr   11100111b, 00100000b, jrcc
+    instr   11000110b, 00000100b, incdec8
+    instr   11111111b, 00011000b, jump8
+    instr   11001111b, 00000011b, inc16
+    instr   11001111b, 00001011b, dec16
+    instr   11001111b, 00000001b, ldnn
     instr   11000111b, 11000110b, aluimm
     instr   11000111b, 00000110b, ldi8
     instr   11000000b, 10000000b, alues
