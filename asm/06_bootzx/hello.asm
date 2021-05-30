@@ -58,11 +58,13 @@ l5:         ld      a, (de)
             jr      nz, l5
 
 next:       ld      hl, $4000
+            ld      de, $4000
             ld      c, 24
 l7:         ld      b, 0
-l6:         ld      a, (hl)
+l6:         ld      a, (de)
             xor     255
             ld      (hl), a
+            inc     de
             inc     hl
             dec     b
             jr      nz, l6

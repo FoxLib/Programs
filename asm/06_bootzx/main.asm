@@ -149,8 +149,7 @@ getreg16:   call    get53di
 
             ; INC/DEC r8
 ; ----------------------------------------------------------------------
-incdec8:
-            call    get53di
+incdec8:    call    get53di
             call    getreg8lo.dirdi
             test    al, 1
             jne     .dec
@@ -163,18 +162,19 @@ incdec8:
             call    setreg8di
             ret
 
-            ; JR a,(DE)
+            ; JR a,(BC|DE)
 ; ----------------------------------------------------------------------
-ldade:      mov     bx, [bp+2]
-            xchg    bh, bl
+ldade:      call    get53di
+            and     di, 2
+            call    getr16
+            mov     bx, dx
             mov     al, [bx]
             mov     [bp+7], al
             ret
 
             ; JR cc, *
 ; ----------------------------------------------------------------------
-jrcc:
-            call    get53di
+jrcc:       call    get53di
             and     di, $03
             mov     al, [cs:jumptable+di]
             mov     [.modif], al
@@ -186,8 +186,8 @@ jrcc:
             ret
 
 ; Для создания "виртуальной" машины
-jphl:       mov     si, bx          ; PC=HL
-            ret
+jphl:       ;mov     si, bx          ; PC=HL
+            ;ret
 
 ; ----------------------------------------------------------------------
             ; <alu> a,imm
@@ -280,7 +280,7 @@ jumptable:  db      0x75, 0x74, 0x73, 0x72
 pattern:
 
     instr   11111111b, 11101001b, jphl
-    instr   11111111b, 00011010b, ldade
+    instr   11101111b, 00001010b, ldade
     instr   11100111b, 00100000b, jrcc
     instr   11000110b, 00000100b, incdec8
     instr   11111111b, 00011000b, jump8
@@ -291,4 +291,3 @@ pattern:
     instr   11000111b, 00000110b, ldi8
     instr   11000000b, 10000000b, alues
     instr   11000000b, 01000000b, moves
-    ;instr   00000000b, 00000000b, error
