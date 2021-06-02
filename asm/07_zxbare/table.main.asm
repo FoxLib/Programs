@@ -1,73 +1,82 @@
+; https://clrhome.org/table/
 table_main:
 
         ; 00-0f
         dw _nop
         dw ldnn
         dw _nop
+        dw incnn
+        dw inc8
+        dw dec8
+        dw ldr8n
+        dw _nop
+
         dw _nop
         dw _nop
         dw _nop
+        dw decnn
+        dw inc8
+        dw dec8
+        dw ldr8n
         dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
+
         ; 10-1f
         dw _nop
         dw ldnn
         dw _nop
+        dw incnn
+        dw inc8
+        dw dec8
+        dw ldr8n
+        dw _nop
+
         dw _nop
         dw _nop
         dw _nop
+        dw decnn
+        dw inc8
+        dw dec8
+        dw ldr8n
         dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
+
         ; 20-2f
         dw _nop
         dw ldnn
         dw _nop
+        dw incnn
+        dw inc8
+        dw dec8
+        dw ldr8n
+        dw _nop
+
         dw _nop
         dw _nop
         dw _nop
+        dw decnn
+        dw inc8
+        dw dec8
+        dw ldr8n
         dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
+
         ; 30-3f
         dw _nop
         dw ldnn
         dw _nop
+        dw incnn
+        dw inc8
+        dw dec8
+        dw ldr8n
+        dw _nop
+
         dw _nop
         dw _nop
         dw _nop
+        dw decnn
+        dw inc8
+        dw dec8
+        dw ldr8n
         dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
+
         ; 40-4f
         dw ld88 ; ld b, b
         dw ld88 ; ld b, c

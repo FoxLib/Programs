@@ -58,10 +58,48 @@ ldnn:       call    get53di
             ret
 
 ; 00aaabbb  ld a,b
-ld88:       mov     bx, [bp+4]      ; bx=hl
-            xchg    bh, bl
+ld88:       call    hlbx
             call    getreg8lo
             call    get53di
+            call    setreg8di
+            ret
+
+; 00xx0000  inc r16
+incnn:      call    get53di
+            call    get16di
+            inc     ax
+            call    put16di
+            ret
+
+; 00xx1000  dec r16
+decnn:      call    get53di
+            and     di, 6
+            call    get16di
+            dec     ax
+            call    put16di
+            ret
+
+; 00xxx110  ld r8, *
+ldr8n:      call    hlbx
+            call    get53di
+            lodsb
+            mov     ah, al
+            call    setreg8di
+            ret
+
+; 00xxx100  inc r8
+inc8:       call    hlbx
+            call    get53di
+            call    getreg8lo.direct
+            call    do_inc
+            call    setreg8di
+            ret
+
+; 00xxx101  dec r8
+dec8:       call    hlbx
+            call    get53di
+            call    getreg8lo.direct
+            call    do_dec
             call    setreg8di
             ret
 

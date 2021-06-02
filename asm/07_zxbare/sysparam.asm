@@ -7,3 +7,5 @@ reg_iff1            db      0
 reg_iff2            db      0
 _halted             db      0
 delayed             db      0       ; Биты 0=EI, 1=DI
+
+flags   db 0
