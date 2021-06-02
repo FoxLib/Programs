@@ -1,2 +1,5 @@
 
-            org     $5b00
+            org     $8000
+
+            inc     a
+            ld      a, (de)
