@@ -5,57 +5,56 @@
             ld      hl, $4000
             ld      de, $3D00+(48h-20h)*8
             ld      b, 8
+
+            ld      de, hello
+
+            ; LD (temp), DE
+chr:        ld      hl, temp
+            ld      (hl), e
+            inc     hl
+            ld      (hl), d
+            ld      a, (de)
+            and     a
+            jr      z, next
+
+            sub     $20
+            ld      d, 0
+            ld      e, a
+            ld      b, 3
+m1:         ld      a, e
+            add     a
+            ld      e, a
+            ld      a, d
+            adc     a, 0
+            ld      d, a
+            dec     b
+            jr      nz, m1
+            ld      a, d
+            add     $3d
+            ld      d, a
+
+            ld      hl, $4000
+            ld      c, 4
+
+            ; Пропечатать символ
+            ld      b, 8
 l1:         ld      a, (de)
             ld      (hl), a
             inc     de
             inc     h
             dec     b
             jr      nz, l1
+            ld      a, h
+            sub     $8
+            ld      h, a
+            inc     hl
 
-            ; E
-            ld      hl, $4001
-            ld      de, $3D00+(45h-20h)*8
-            ld      b, 8
-l2:         ld      a, (de)
-            ld      (hl), a
+            ld      hl, temp
+            ld      e, (hl)
+            inc     hl
+            ld      d, (hl)
             inc     de
-            inc     h
-            dec     b
-            jr      nz, l2
-
-
-            ; L
-            ld      hl, $4002
-            ld      de, $3D00+(4Ch-20h)*8
-            ld      b, 8
-l3:         ld      a, (de)
-            ld      (hl), a
-            inc     de
-            inc     h
-            dec     b
-            jr      nz, l3
-
-            ; L
-            ld      hl, $4003
-            ld      de, $3D00+(4ch-20h)*8
-            ld      b, 8
-l4:         ld      a, (de)
-            ld      (hl), a
-            inc     de
-            inc     h
-            dec     b
-            jr      nz, l4
-
-            ; O
-            ld      hl, $4004
-            ld      de, $3D00+(4Fh-20h)*8
-            ld      b, 8
-l5:         ld      a, (de)
-            ld      (hl), a
-            inc     de
-            inc     h
-            dec     b
-            jr      nz, l5
+            jr      chr
 
 next:       ld      hl, $4000
             ld      de, $4000
@@ -71,3 +70,6 @@ l6:         ld      a, (de)
             dec     c
             jr      nz, l7
             jr      next
+
+hello:      db "Hello",0
+temp:       dw 0
