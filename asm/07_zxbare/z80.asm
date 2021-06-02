@@ -1,5 +1,6 @@
 
             org     $8000
 
-            inc     a
+            ld      (hl), d
+            ld      sp, $1234
             ld      a, (de)
