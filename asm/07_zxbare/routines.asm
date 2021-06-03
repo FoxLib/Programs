@@ -4,9 +4,32 @@
 ; SZ5H3PNC-z80
 ; 76543210
 
-;           BX = HL
-hlbx:       mov     bx, [bp+4]      ; bx=hl
+;           BX = BC,DE,HL
+bcbx:       mov     bx, [bp+reg_bc]
             xchg    bh, bl
+            ret
+debx:       mov     bx, [bp+reg_de]
+            xchg    bh, bl
+            ret
+hlbx:       mov     bx, [bp+reg_hl]
+            xchg    bh, bl
+            ret
+
+;           Считывание WORD из памяти. LODSW может вызвать #GP ошибку
+getword:    lodsb
+            mov     ah, al
+            lodsb
+            xchg    ah, al
+            ret
+
+            ; Загрузка mov ax, [bx] | mov [bx], ax
+loadword:   mov     al, [bx]
+            inc     bx
+            mov     ah, [bx]
+            ret
+saveword:   mov     [bx], al
+            inc     bx
+            mov     [bx], ah
             ret
 
 ;           DI = (AL>>3) & 7; DI = AL & 7
@@ -21,8 +44,8 @@ get20di:    mov     di, ax
 
 ;           Извлечь AX из DI {0=BC,2=DE,4=HL,6=SP}
 ; ----------------------------------------------------------------------
-get16di:    mov     ax, [bp+8] ; SP
-            cmp     di, 6
+get16di:    mov     ax, [bp+reg_sp]
+            cmp     di, reg_af
             je      @f
             mov     ax, [bp+di]
 @@:         xchg    ah, al
@@ -31,9 +54,9 @@ get16di:    mov     ax, [bp+8] ; SP
 ;           Сохраняет AX в регистр DI {0=BC,2=DE,4=HL,6=SP}
 ; ----------------------------------------------------------------------
 put16di:    xchg    ah, al
-            cmp     di, 6
+            cmp     di, reg_af
             jne     @f
-            mov     di, 8 ; SP
+            mov     di, reg_sp
 @@:         mov     [bp+di], ax
             ret
 
@@ -41,15 +64,16 @@ put16di:    xchg    ah, al
 ; ----------------------------------------------------------------------
 getreg8lo:  mov     di, ax      ; Регистр
 .direct:    and     di, 7
-            cmp     di, 6
+            cmp     di, 6       ; 6=(hl)
             mov     ah, [bp+di]
             jne     @f          ; Значение из регистра
             mov     ah, [bx]    ; Или из (HL)
 @@:         ret
 
+
 ;           Сохранить AH в регистр DI
 ; ----------------------------------------------------------------------
-setreg8di:  cmp     di, 6
+setreg8di:  cmp     di, 6       ; 6=(hl)
             je      @f
             mov     [bp+di], ah
             ret

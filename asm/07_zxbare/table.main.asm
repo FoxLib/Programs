@@ -2,80 +2,76 @@
 table_main:
 
         ; 00-0f
-        dw _nop
-        dw ldnn
-        dw _nop
-        dw incnn
-        dw inc8
-        dw dec8
-        dw ldr8n
-        dw _nop
-
-        dw _nop
-        dw _nop
-        dw _nop
-        dw decnn
-        dw inc8
-        dw dec8
-        dw ldr8n
-        dw _nop
+        dw _nop         ; 00
+        dw ldnn         ; 01
+        dw ldbca        ; 02
+        dw incnn        ; 03
+        dw inc8         ; 04
+        dw dec8         ; 05
+        dw ldr8n        ; 06
+        dw _nop         ; 07
+        dw _nop         ; 08
+        dw _nop         ; 09
+        dw ldabc        ; 0A
+        dw decnn        ; 0B
+        dw inc8         ; 0C
+        dw dec8         ; 0D
+        dw ldr8n        ; 0E
+        dw _nop         ; 0F
 
         ; 10-1f
-        dw _nop
-        dw ldnn
-        dw _nop
-        dw incnn
-        dw inc8
-        dw dec8
-        dw ldr8n
-        dw _nop
-
-        dw _nop
-        dw _nop
-        dw _nop
-        dw decnn
-        dw inc8
-        dw dec8
-        dw ldr8n
-        dw _nop
+        dw _nop         ; 10
+        dw ldnn         ; 11
+        dw lddea        ; 12
+        dw incnn        ; 13
+        dw inc8         ; 14
+        dw dec8         ; 15
+        dw ldr8n        ; 16
+        dw _nop         ; 17
+        dw _nop         ; 18
+        dw _nop         ; 19
+        dw ldade        ; 1A
+        dw decnn        ; 1B
+        dw inc8         ; 1C
+        dw dec8         ; 1D
+        dw ldr8n        ; 1E
+        dw _nop         ; 1F
 
         ; 20-2f
-        dw _nop
-        dw ldnn
-        dw _nop
-        dw incnn
-        dw inc8
-        dw dec8
-        dw ldr8n
-        dw _nop
-
-        dw _nop
-        dw _nop
-        dw _nop
-        dw decnn
-        dw inc8
-        dw dec8
-        dw ldr8n
-        dw _nop
+        dw _nop         ; 20
+        dw ldnn         ; 21
+        dw ldnnhl       ; 22
+        dw incnn        ; 23
+        dw inc8         ; 24
+        dw dec8         ; 25
+        dw ldr8n        ; 26
+        dw _nop         ; 27
+        dw _nop         ; 28
+        dw _nop         ; 29
+        dw ldhlnn       ; 2A
+        dw decnn        ; 2B
+        dw inc8         ; 2C
+        dw dec8         ; 2D
+        dw ldr8n        ; 2E
+        dw _nop         ; 2F
 
         ; 30-3f
-        dw _nop
-        dw ldnn
-        dw _nop
-        dw incnn
-        dw inc8
-        dw dec8
-        dw ldr8n
-        dw _nop
-
-        dw _nop
-        dw _nop
-        dw _nop
-        dw decnn
-        dw inc8
-        dw dec8
-        dw ldr8n
-        dw _nop
+        dw _nop         ; 30
+        dw ldnn         ; 31
+        dw ldnna        ; 32
+        dw incnn        ; 33
+        dw inc8         ; 34
+        dw dec8         ; 35
+        dw ldr8n        ; 36
+        dw _nop         ; 37
+        dw _nop         ; 38
+        dw _nop         ; 39
+        dw ldann        ; 3A
+        dw decnn        ; 3B
+        dw inc8         ; 3C
+        dw dec8         ; 3D
+        dw ldr8n        ; 3E
+        dw _nop         ; 3F
 
         ; 40-4f
         dw ld88 ; ld b, b

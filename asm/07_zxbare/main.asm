@@ -53,7 +53,7 @@ _halt:      mov     [cs:_halted], 1
 
 ; 00xx0000  ld r16, nn
 ldnn:       call    get53di
-            lodsw
+            call    getword
             call    put16di
             ret
 
@@ -64,6 +64,22 @@ ldr8n:      call    hlbx
             mov     ah, al
             call    setreg8di
             ret
+
+; 000x0010  ld (bc|de),a
+ldbca:      call    bcbx
+.ld:        mov     al, [bp+reg_a]
+            mov     [bx], al
+            ret
+lddea:      call    debx
+            jmp     ldbca.ld
+
+; 000x1010  ld a,(bc|de)
+ldabc:      call    bcbx
+.ld:        mov     al, [bx]
+            mov     [bp+reg_a], al
+            ret
+ldade:      call    debx
+            jmp     ldabc.ld
 
 ; 00aaabbb  ld a,b
 ld88:       call    hlbx
@@ -101,6 +117,36 @@ dec8:       call    hlbx
             call    getreg8lo.direct
             call    do_dec
             call    setreg8di
+            ret
+
+; 00101010  ld hl, (**)
+ldhlnn:     call    getword
+            mov     bx, ax
+            call    loadword
+            mov     [bp+reg_hl],   ah       ; H
+            mov     [bp+reg_hl+1], al       ; L
+            ret
+
+; 00111010  ld (**), hl
+ldnnhl:     call    getword
+            mov     bx, ax
+            mov     ax, [bp+reg_hl]
+            xchg    ah, al
+            call    saveword
+            ret
+
+; 0011 0010 ld (**), a
+ldnna:      call    getword
+            mov     bx, ax
+            mov     al, [bp+reg_a]
+            mov     [bx], al
+            ret
+
+; 0011 1010 ld a, (**)
+ldann:      call    getword
+            mov     bx, ax
+            mov     al, [bx]
+            mov     [bp+reg_a], al
             ret
 
 ; ----------------------------------------------------------------------
