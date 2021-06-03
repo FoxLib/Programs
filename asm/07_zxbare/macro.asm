@@ -14,3 +14,8 @@ reg_a       equ [bp+7]
 reg_sp      equ [bp+8]
 
 reg_prime   equ [bp+$40]
+
+; Маски флагов
+;               SZ5A3PNCvvvvvvvv
+SZHXY       equ 1101000000000111b
+SZHCXY      equ 1101000100000110b

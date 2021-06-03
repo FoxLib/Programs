@@ -59,32 +59,57 @@ setreg8di:  cmp     di, 6
 ;           Инкремент AH с обновлением флагов
 ; ----------------------------------------------------------------------
 do_inc:     inc     ah
-            call    set_szhxy
-            and     [cs:flags], 11111001b  ; PV=0, N=0
-            cmp     ah, 0x80
-            jne     @f
-            or      [cs:flags], 00000100b  ; PV=1
-@@:         ret
+            mov     cx, SZHXY
+            call    set_flag_overflow
+            call    set_flag_mask
+            and     [cs:flags], 11111101b  ; N=0
+            ret
 
 ;           Декремент AH с обновлением флагов
 ; ----------------------------------------------------------------------
 do_dec:     dec     ah
-            call    set_szhxy
-            and     [cs:flags], 11111001b  ; PV=0, N=0
-            cmp     ah, 0x7f
-            jne     @f
-            or      [cs:flags], 00000100b  ; PV=1
-@@:         ret
+            mov     cx, SZHXY
+            call    set_flag_overflow
+            call    set_flag_mask
+            or      [cs:flags], 00000010b  ; N=1
+            ret
 
-;           Установить флаги SZXY после выполнения 8 битных инструкции
+;           Сложение аккумулятора с AH
 ; ----------------------------------------------------------------------
-set_szhxy:  push    ax
+do_add:     add     ah, [bp+7]
+            mov     cx, SZHCXY
+            call    set_flag_overflow
+            call    set_flag_mask
+            and     [cs:flags], 11111101b  ; N=0
+            mov     [bp+7], ah
+            ret
+
+;           Установить флаги после выполнения 8 битных инструкции
+;           SZHXY: CH=11010000, CL=00000111b
+; ----------------------------------------------------------------------
+set_flag_mask:
+
+            push    ax
             mov     al, ah
             lahf
-            ;           SZ A      X Y
-            and     ax, 1101000000101000b   ; SZ + XY флаги
+            and     al, 00101000b   ; XY
+            and     ah, ch          ; Отсеять биты по маске
             or      ah, al
-            and     [cs:flags], 00000111b
+            and     [cs:flags], cl  ; Очистить биты, которые используются
             or      [cs:flags], ah
             pop     ax
             ret
+
+;           Копирование OF флага в P/V
+; ----------------------------------------------------------------------
+set_flag_overflow:
+
+            pushf
+            jno     .clear
+            or      [cs:flags], 00000010b ; PV=1
+            popf
+            ret
+.clear:     and     [cs:flags], 11111101b ; PV=0
+            popf
+            ret
+

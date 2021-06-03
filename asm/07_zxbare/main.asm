@@ -57,6 +57,14 @@ ldnn:       call    get53di
             call    put16di
             ret
 
+; 00xxx110  ld r8, *
+ldr8n:      call    hlbx
+            call    get53di
+            lodsb
+            mov     ah, al
+            call    setreg8di
+            ret
+
 ; 00aaabbb  ld a,b
 ld88:       call    hlbx
             call    getreg8lo
@@ -77,14 +85,6 @@ decnn:      call    get53di
             call    get16di
             dec     ax
             call    put16di
-            ret
-
-; 00xxx110  ld r8, *
-ldr8n:      call    hlbx
-            call    get53di
-            lodsb
-            mov     ah, al
-            call    setreg8di
             ret
 
 ; 00xxx100  inc r8
