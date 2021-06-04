@@ -11,27 +11,26 @@
             mov     si, 160
             mov     di, 100
             mov     cx, 150
-            call    CircleFill
-            ret
+            ;call    CircleFill
+            ;ret
 
             ; === Тестовый способ ===
 
             ; Рисование окружности r=50
-            mov     di, (100-50)*(320) + 160
+            mov     di, (100-100)*(320) + 160
             mov     ax, 0       ; ax=0
-            mov     bx, 50     ; bx=y
+            mov     bx, 100     ; bx=y
 
             ; init
             mov     dx, bx
-            add     dx, dx      ; dx=2*y
-            sub     dx, 3
-            neg     dx          ; dx=3-2*y
-circl:      cmp     ax, bx
-            jnb     exit
+            add     dx, 3
+            sub     dx, bx
+            sub     dx, bx      ; dx+=(3-2*y)
+circle:     mov     [es:di], byte $0f       ; si, di, cx
             mov     cx, ax
             shl     cx, 2
+            add     dx, cx      ; dx += 4*x+6
             add     dx, 6
-            add     dx, cx      ; d += 4*x+6
             js      skipy
             mov     cx, 1
             sub     cx, bx
@@ -41,11 +40,8 @@ circl:      cmp     ax, bx
             dec     bx
 skipy:      inc     di
             inc     ax
-
-            mov     [es:di], byte $0f
-            jmp     circl
-
-exit:       int3
+            cmp     ax, bx
+            jbe     circle
             ret
 
 include     "circle.asm"

@@ -100,12 +100,41 @@ do_dec:     dec     ah
 
 ;           Сложение аккумулятора с AH
 ; ----------------------------------------------------------------------
-do_add:     add     ah, [bp+7]
+do_add:     add     [bp+7], ah
+.flags:     mov     ah, [bp+7]
             mov     cx, SZHCXY
             call    set_flag_overflow
             call    set_flag_mask
             and     [cs:flags], 11111101b  ; N=0
-            mov     [bp+7], ah
+            ret
+
+;           Сложение аккумулятора с AH с переносом
+; ----------------------------------------------------------------------
+do_adc:     call    loadcarry
+            adc     [bp+7], ah
+            jmp     do_add.flags
+
+;           Вычистание AC -= AH
+; ----------------------------------------------------------------------
+do_sub:     sub     [bp+7], ah
+.flags:     mov     ah, [bp+7]
+            mov     cx, SZHCXY
+            call    set_flag_overflow
+            call    set_flag_mask
+            or      [cs:flags], 00000010b  ; N=1
+            ret
+
+;           Вычитание AC -= AH с переносом
+; ----------------------------------------------------------------------
+do_sbc:     call    loadcarry
+            sbb     [bp+7], ah
+            jmp     do_sub.flags
+
+;           Сравнение AC с AH без записи результата
+; ----------------------------------------------------------------------
+do_cp:      push    word [bp+7]
+            call    do_sub
+            pop     word [bp+7]
             ret
 
 ;           Установить флаги после выполнения 8 битных инструкции
@@ -137,3 +166,9 @@ set_flag_overflow:
             popf
             ret
 
+;           Загрузка CF из flags
+; ----------------------------------------------------------------------
+loadcarry:  test    [cs:flags], byte 1      ; Очистка CF=0
+            je      .ret                    ; Если ZF=1, то CF=0 остается
+            stc
+.ret:       ret
