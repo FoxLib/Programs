@@ -1,6 +1,7 @@
 
             org     $8000
 
+            sub     (hl)
             ld      (de), a
             ld      hl, ($1234)
             ld      (hl), $23

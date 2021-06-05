@@ -70,7 +70,6 @@ getreg8lo:  mov     di, ax      ; Регистр
             mov     ah, [bx]    ; Или из (HL)
 @@:         ret
 
-
 ;           Сохранить AH в регистр DI
 ; ----------------------------------------------------------------------
 setreg8di:  cmp     di, 6       ; 6=(hl)
@@ -98,7 +97,7 @@ do_dec:     dec     ah
             or      [cs:flags], 00000010b  ; N=1
             ret
 
-;           Сложение аккумулятора с AH
+;           Сложение аккумулятора с AH и с переносом
 ; ----------------------------------------------------------------------
 do_add:     add     [bp+7], ah
 .flags:     mov     ah, [bp+7]
@@ -107,14 +106,11 @@ do_add:     add     [bp+7], ah
             call    set_flag_mask
             and     [cs:flags], 11111101b  ; N=0
             ret
-
-;           Сложение аккумулятора с AH с переносом
-; ----------------------------------------------------------------------
 do_adc:     call    loadcarry
             adc     [bp+7], ah
             jmp     do_add.flags
 
-;           Вычистание AC -= AH
+;           Вычитание и вычитание с переносом, сравнение
 ; ----------------------------------------------------------------------
 do_sub:     sub     [bp+7], ah
 .flags:     mov     ah, [bp+7]
@@ -123,19 +119,51 @@ do_sub:     sub     [bp+7], ah
             call    set_flag_mask
             or      [cs:flags], 00000010b  ; N=1
             ret
-
-;           Вычитание AC -= AH с переносом
-; ----------------------------------------------------------------------
 do_sbc:     call    loadcarry
             sbb     [bp+7], ah
             jmp     do_sub.flags
-
-;           Сравнение AC с AH без записи результата
-; ----------------------------------------------------------------------
-do_cp:      push    word [bp+7]
+do_cp:      push    word [bp+6]
             call    do_sub
-            pop     word [bp+7]
+            pop     word [bp+6]
             ret
+
+;           XOR/OR/AND A, <AH>
+; ----------------------------------------------------------------------
+do_xor:     xor     [bp+7], ah
+.flags:     mov     ah, [bp+7]
+            mov     cx, SZPXY
+            call    set_flag_mask
+            and     [cs:flags], 11101100b  ; H=0,N=0,C=0
+            ret
+do_and:     and     [bp+7], ah
+            mov     ah, [bp+7]
+            mov     cx, SZPXY
+            call    set_flag_mask
+            and     [cs:flags], 11101100b   ; N=0,C=0
+            or      [cs:flags], 00000010b   ; H=1
+            ret
+do_or:      or      [bp+7], ah
+            jmp     do_xor.flags
+
+;           ADC hl, AX
+; ----------------------------------------------------------------------
+do_hl_adc:  call    loadcarry
+            mov     bx, [bp+reg_hl]     ; BX=HL
+            xchg    bh, bl
+            push    ax
+            add     ax, bx
+            mov     cx, SZCXYnh
+            call    set_flag_overflow
+            call    set_flag_mask       ; SZC+XY, H=0, N=0
+            xchg    ah, al
+            mov     [bp+reg_hl], ax
+            pop     cx                  ; CH=операнд, BH=H, AH=res
+            xor     al, bh
+            xor     al, ch
+            test    al, 0x10
+            je      @f
+            or      [cs:flags], 00010000b   ; Установка AF
+@@:         ret
 
 ;           Установить флаги после выполнения 8 битных инструкции
 ;           SZHXY: CH=11010000, CL=00000111b

@@ -15,6 +15,8 @@ reg_iy      equ 12
 reg_prime   equ $20
 
 ; Маски флагов
-;               SZ5A3PNCvvvvvvvv
+;               SZ5A3PNCsz h pnc
+SZCXYnh     equ 1100000100000100b
 SZHXY       equ 1101000000000111b
+SZPXY       equ 1100010000010011b
 SZHCXY      equ 1101000100000110b

@@ -142,73 +142,73 @@ table_main:
         dw ld88 ; ld a, (hl)
         dw ld88 ; ld a, a
         ; 80-8f
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
         ; 90-9f
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
         ; a0-af
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
         ; b0-bf
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
-        dw _nop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
+        dw aluop
         ; c0-cf
         dw _nop
         dw _nop
@@ -296,3 +296,14 @@ cycles_main:
         db 5, 10, 10, 11, 10, 11,  7, 11,  5,  4, 10, 11, 10,  0,  7, 11
         db 5, 10, 10, 19, 10, 11,  7, 11,  5,  4, 10,  4, 10,  0,  7, 11
         db 5, 10, 10,  4, 10, 11,  7, 11,  5,  6, 10,  4, 10,  0,  7, 11
+
+alu_symbols:
+
+        dw do_add       ; 0
+        dw do_adc       ; 1
+        dw do_sub       ; 2
+        dw do_sbc       ; 3
+        dw do_and       ; 4
+        dw do_xor       ; 5
+        dw do_or        ; 6
+        dw do_cp        ; 7

@@ -40,6 +40,8 @@ instr:      dec     dh                      ; Проверка истечени�
             add     bx, bx
 brk
             call    word [cs:table_main+bx] ; Вызвать обработчик инструкции
+            call    regdump
+
             ret
 ; ----------------------------------------------------------------------
 
@@ -147,6 +149,13 @@ ldann:      call    getword
             mov     al, [bx]
             mov     [bp+reg_a], al
             ret
+
+; 10xxx_xxx alu _op_
+aluop:      call    hlbx
+            call    getreg8lo
+            call    get53di
+            add     di, di
+            jmp     word [cs:alu_symbols+di]
 
 ; ----------------------------------------------------------------------
 include     "sysparam.asm"
