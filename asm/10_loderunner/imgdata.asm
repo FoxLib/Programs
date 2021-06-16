@@ -4,43 +4,33 @@
 ladder_phase        dw      0
 gold_phase          dw      0
 
-; Ссылки на блоки с изображениями
-; ----------------------------------------------------------------------
-img_table:
+tile_convert:
 
-        dw      sp_00_zero              ; 0 Пустота
-        dw      sp_01_block             ; 1 Кирпичи
-        dw      -1                      ; 2 Лестница
-        dw      -1                      ; 3 Золото
-        dw      sp_04_rope              ; 4 Веревка
-        dw      sp_05_iron              ; 5 Железный блок
-
-ladder_anim:
-
-        dw      sp_02_ladder            ; Фаза анимации 0
-        dw      sp_02_ladder1
-        dw      sp_02_ladder2
-        dw      sp_02_ladder1
-
-gold_anim:
-
-        dw      sp_03_gold
-        dw      sp_03_gold1
-        dw      sp_03_gold2
-        dw      sp_03_gold1
+        db      24, 2                   ; 0 Пустота
+        db      25, 1                   ; 1 Кирпичи
+        db      27, 3                   ; 2 Лестница
+        db      31, 4                   ; 3 Золото
+        db      28, 3                   ; 4 Веревка
+        db      26, 1                   ; 5 Железный блок
 
 ; Бинарные данные
 ; ----------------------------------------------------------------------
-sp_00_zero:     times 256 db 0x3f       ; Черный цвет
-sp_01_block     file "img/01_brick.bin"
-sp_02_ladder    file "img/02_ladder.bin"
-sp_03_gold      file "img/03_gold.bin"
-sp_03_gold1     file "img/03_gold1.bin"
-sp_03_gold2     file "img/03_gold2.bin"
-sp_04_rope      file "img/04_rope.bin"
-sp_05_iron      file "img/05_iron.bin"
-sp_02_ladder1   file "img/02_ladder1.bin"
-sp_02_ladder2   file "img/02_ladder2.bin"
+tilemap:        file "img/tilemap.bin"      ; 4kb
+                file "img/sprites.bin"      ; 4kb
+
+; ----------------------------------------------------------------------
+current_palette:
+
+        db 0x12, 0x16, 0x3F, 0x27           ; 0 Расцветка игрока
+        db 0x0F, 0x17, 0x07, 0x26           ; 1 Тайлы уровня
+        db 0x0F, 0x0F, 0x0F, 0x0F           ; 2 Пустота
+        db 0x0F, 0x16, 0x30, 0x00           ; 3 Лестница
+        db 0x0F, 0x28, 0x00, 0x38           ; 4 Золотишко
+        ;        0x38  0x28  0x00
+
+; Анимация золота
+anim_color_gold     db 0x00, 0x10, 0x20, 0x10
+anim_color_ladder   db 0x06, 0x16, 0x26, 0x16
 
 ; Палитра NES
 ; ----------------------------------------------------------------------

@@ -3,20 +3,21 @@
 ; ----------------------------------------------------------------------
 refresh:
 
-            push    ax bx cx dx si di bp es
+            pusha
+            push    es
 
             ; Сегмент для рисования
-            mov     es, [seg_fb]
+            mov     es,  [seg_fb]
 
             ; Расчет скролла по X
-            mov     ax, [scroll_x]
+            mov     ax,  [scroll_x]
             mov     word [scroll_x_fine], ax
             mov     word [scroll_x_tile], ax
             and     word [scroll_x_fine], 15
             shr     word [scroll_x_tile], 4
 
             ; Расчет скролла по Y
-            mov     ax, [scroll_y]
+            mov     ax,  [scroll_y]
             mov     word [scroll_y_fine], ax
             mov     word [scroll_y_tile], ax
             and     word [scroll_y_fine], 15
@@ -38,6 +39,13 @@ refresh:
             mov     bl, [bx]
             mov     bh, 0
 
+            ; AL-номер спрайта (0..255); DL=4 (все непрозрачное)
+            add     bx, bx
+            mov     ax, [tile_convert + bx]
+            mov     bp, ax
+            shr     bp, 8
+            and     ax, 0x00ff
+
             ; si = cx*16 - scrollx_fine
             mov     si, cx
             shl     si, 4
@@ -47,7 +55,12 @@ refresh:
             mov     di, dx
             shl     di, 4
             sub     di, [scroll_y_fine]
-            call    draw_tile
+
+            ; Рисование тайла на экране
+            push    dx
+            mov     dl, 4
+            call    draw_sprite
+            pop     dx
 
             inc     cx
             cmp     cx, 20
@@ -57,73 +70,81 @@ refresh:
             cmp     dx, 12
             jbe     .tiley
 
-            pop     es bp di si dx cx bx ax
+            pop     es
+            popa
             ret
 
-; bx-номер тайла, si-X, di-Y
+; Нарисовать:
+; * ax - номер тайла (0..511)
+; * si, di - позиция на экране
+; * bp - номер палитры
+; * dl - номер прозрачного цвета
 ; ----------------------------------------------------------------------
-draw_tile:
+draw_sprite:
 
-            push    ax bx cx dx si di
+            pusha
+            push    es
+            mov     es, [seg_fb]
 
-            ; Поиск бинарных данных
-            cmp     bx, TILE_LADDER
-            mov     dx, ladder_phase + 1
-            mov     ax, ladder_anim
-            je      .set_animation
+            shl     bp, 2       ; Получение палитры
+            add     bp, current_palette
+            mov     bx, ax
+            shl     bx, 6       ; bx = ax*64
+            add     bx, tilemap ; Спрайты и тайлы
 
-            cmp     bx, TILE_GOLD
-            mov     dx, gold_phase + 1
-            mov     ax, gold_anim
-            je      .set_animation
-
-            jmp     .find
-
-.set_animation:
-
-            ; Текущая анимация лестницы
-            ; DX-фаза, AX-ссылка на таблицу
-            mov     bx, dx
-            mov     bl, byte [bx]
-            mov     bh, 0
-            add     bx, bx
-            add     bx, ax
-            mov     bx, [bx]
-            jmp     .found
-
-.find:      ; Поиск в таблице тайлов
-            add     bx, bx              ; bx *= 2
-            mov     bx, [img_table + bx]
-
-.found:     ; Рисование тайла
             mov     ch, 16
-.psety:     mov     cl, 16
-.psetx:     mov     al, [bx]            ; Извлечь следующий пиксель
-            inc     bx
+.next3:     mov     dh, 4
+.next2:     mov     cl, 4
+            mov     al, [bx]    ; 8 пикселей
 
-            ; Рисуем ли на экране?
+            ; Просмотр следующего индексного цвета
+.next1:     rol     al, 2
+
+            ; Сохранение текущего положения цвета и указателя
+            push    ax bx
+            and     ax, 3
+
+            ; Прозрачный цвет?
+            cmp     al, dl
+            je      .skip
+
+            ; Вычисление реального цвета
+            add     ax, bp
+            mov     bx, ax
+            mov     al, [bx]
+
+            ; Проверка границ
             cmp     si, 320
             jnb     .skip
             cmp     di, 200
             jnb     .skip
 
-            ; Рисуем пиксель
-.ok:        push    di
-            imul    di, 320             ; DI = Y*320 + X
+            ; Рисование пикселя
+            push    di
+            imul    di, 320
             add     di, si
             stosb
             pop     di
 
-.skip:      inc     si                  ; X++
+            ; Отрисовка 4 пикселей
+.skip:      pop     bx ax
+            inc     si
             dec     cl
-            jne     .psetx
+            jne     .next1
 
-            sub     si, 16              ; X -= 16
-            inc     di                  ; Y++
+            ; Следующий BYTE (4 пикселей)
+            inc     bx
+            dec     dh
+            jne     .next2
+
+            ; Следующая строка
+            sub     si, 16
+            inc     di
             dec     ch
-            jne     .psety
+            jne     .next3
 
-            pop     di si dx cx bx ax
+            pop     es
+            popa
             ret
 
 ; Отрисовка фреймбуфера на экране
@@ -163,6 +184,7 @@ set_palette:
             ret
 
 ; Процедура для обновления анимации тайлов на уровне
+; CH-количество отсчетов, CL-скорость, DX-ссылка на палитру, BX-счетчик
 ; ----------------------------------------------------------------------
 update_tile_animation:
 
@@ -174,32 +196,36 @@ update_tile_animation:
             cmp     byte [bx+1], ch
             jne     @f
             mov     byte [bx+1], 0
-@@:         ret
+@@:         mov     bl, [bx+1]
+            mov     bh, 0
+            add     bx, dx
+            mov     al, [bx]
+            ret
 
 ; Перехват таймера
 ; ----------------------------------------------------------------------
 
 int8_timer:
 
-        cli
+            cli
 
-        ; Перепрограммирование таймера
-        ; Модулятор 1193181 / HZ = число
-        ; 47727 = 25 герц
-        mov     al, 0x6F
-        out     $40, al         ; low
-        mov     al, 0xBA
-        out     $40, al         ; high
+            ; Перепрограммирование таймера
+            ; Модулятор 1193181 / HZ = число
+            ; 47727 = 25 герц
+            mov     al, 0x6F
+            out     $40, al         ; low
+            mov     al, 0xBA
+            out     $40, al         ; high
 
-        push    ds
-        xor     ax, ax
-        mov     ds, ax
-        mov     ax, [4*8]
-        mov     [0xff*4], ax
-        mov     ax, [4*8+2]
-        mov     [0xff*4+2], ax      ; Переместить таймер на INT FFh
-        mov     [4*8], word clock
-        mov     [4*8+2], cs         ; Назначить новый таймер
-        pop     ds
-        sti
-        ret
+            push    ds
+            xor     ax, ax
+            mov     ds, ax
+            mov     ax, [4*8]
+            mov     [0xff*4], ax
+            mov     ax, [4*8+2]
+            mov     [0xff*4+2], ax      ; Переместить таймер на INT FFh
+            mov     [4*8], word clock
+            mov     [4*8+2], cs         ; Назначить новый таймер
+            pop     ds
+            sti
+            ret

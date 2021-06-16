@@ -12,6 +12,7 @@ include "macro.asm"
         mov     ax, cs
         add     ax, $1000
         mov     [seg_fb], ax        ; Установка фреймбуфера
+        ;mov     [seg_fb], word $a000
         call    set_palette
 
         ; Пока что ничего тут не делается
@@ -23,15 +24,19 @@ include "macro.asm"
 clock:  int     255
         pusha
 
-        ; Скорость обновления (каждые CL=16 кадра), CH=4 тайла
-        mov     bx, ladder_phase
+        ; Обновление анимации лестницы
         mov     cx, 0x0410
+        mov     bx, ladder_phase
+        mov     dx, anim_color_ladder
         call    update_tile_animation
+        mov     [current_palette + 3*4 + 1], al ; 3-лестница
 
         ; Обновление анимации золота на уровне
-        mov     bx, gold_phase
         mov     cx, 0x0404
+        mov     bx, gold_phase
+        mov     dx, anim_color_gold
         call    update_tile_animation
+        mov     [current_palette + 4*4 + 2], al ; 4-золото
 
         ; Перерисовка уровня
         call    refresh

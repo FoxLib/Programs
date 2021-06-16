@@ -4,4 +4,5 @@ all:
 	cp main.com ~/dosbox/
 	dosbox
 convert:
-	cd utils && php batchimg.php
+	php utils/pngto2bin.php src/sprites.png img/sprites.bin
+	php utils/pngto2bin.php src/tilemap.png img/tilemap.bin
