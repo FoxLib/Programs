@@ -1,13 +1,33 @@
 
+; Для различной подсветки элементов
+; Младший байт - счетчик, старший байт - номер тайла
+ladder_phase        dw      0
+gold_phase          dw      0
+
 ; Ссылки на блоки с изображениями
 ; ----------------------------------------------------------------------
 img_table:
 
-        dw      sp_00_zero
-        dw      sp_01_block             ; Кирпичи
-        dw      sp_02_ladder            ; Лестница
-        dw      sp_03_gold              ; Золото
-        dw      sp_04_rope              ; Веревка
+        dw      sp_00_zero              ; 0 Пустота
+        dw      sp_01_block             ; 1 Кирпичи
+        dw      -1                      ; 2 Лестница
+        dw      -1                      ; 3 Золото
+        dw      sp_04_rope              ; 4 Веревка
+        dw      sp_05_iron              ; 5 Железный блок
+
+ladder_anim:
+
+        dw      sp_02_ladder            ; Фаза анимации 0
+        dw      sp_02_ladder1
+        dw      sp_02_ladder2
+        dw      sp_02_ladder1
+
+gold_anim:
+
+        dw      sp_03_gold
+        dw      sp_03_gold1
+        dw      sp_03_gold2
+        dw      sp_03_gold1
 
 ; Бинарные данные
 ; ----------------------------------------------------------------------
@@ -15,7 +35,12 @@ sp_00_zero:     times 256 db 0x3f       ; Черный цвет
 sp_01_block     file "img/01_brick.bin"
 sp_02_ladder    file "img/02_ladder.bin"
 sp_03_gold      file "img/03_gold.bin"
+sp_03_gold1     file "img/03_gold1.bin"
+sp_03_gold2     file "img/03_gold2.bin"
 sp_04_rope      file "img/04_rope.bin"
+sp_05_iron      file "img/05_iron.bin"
+sp_02_ladder1   file "img/02_ladder1.bin"
+sp_02_ladder2   file "img/02_ladder2.bin"
 
 ; Палитра NES
 ; ----------------------------------------------------------------------
