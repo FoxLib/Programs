@@ -3,25 +3,53 @@ include "macro.asm"
 
         org     100h
 
+        cli
         mov     ax, $0013
         int     10h
 
-        ; Перехват таймера
-        call    int8_timer
+        ; Перепрограммирование таймера
+        ; Модулятор 1193181 / HZ = число
+        ; 47727 = 25 герц
+        mov     al, 0x6F
+        out     $40, al         ; low
+        mov     al, 0xBA
+        out     $40, al         ; high
 
         mov     ax, cs
         add     ax, $1000
         mov     [seg_fb], ax        ; Установка фреймбуфера
-        ;mov     [seg_fb], word $a000
         call    set_palette
+        sti
 
-        ; Пока что ничего тут не делается
-@@:     jmp     @b
+        ; Главная процедура отлова прерываний
+; ----------------------------------------------------------------------
+main:   mov     ah, 0
+        int     1Ah
+        cmp     [clock_time], dx
+        je      .keyb
+        mov     [clock_time], dx
+        call    clock
+
+        ; Проверка нажатия клавиши
+.keyb:  mov     ah, 1
+        int     16h
+        je      main
+        cmp     ax, $011B
+        je      exit
+
+        int3
+        jmp     main
+
+exit:
+        ; Восстановить таймер
+        xor     ax, ax
+        out     $40, al
+        out     $40, al
         int     20h
 
 ; Обработка событий каждые 1/18 секунды
 ; ----------------------------------------------------------------------
-clock:  int     255
+clock:
         pusha
 
         ; Обновление анимации лестницы
@@ -46,7 +74,7 @@ clock:  int     255
         ;add     word [scroll_x], 1
 
         popa
-        iret
+        ret
 
 ; ----------------------------------------------------------------------
 include "proc.asm"

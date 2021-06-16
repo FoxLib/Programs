@@ -1,3 +1,5 @@
+; Для отслеживания обновления кадра
+clock_time          dw      0
 
 ; Текущий уровень
 current_level       dw      level_01

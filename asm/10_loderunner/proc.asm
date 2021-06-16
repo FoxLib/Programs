@@ -78,13 +78,33 @@ refresh:
 ; ----------------------------------------------------------------------
 redraw_sprite:
 
-            mov ax, 64 + 28
-            mov si, 70
-            mov di, 0
-            mov bp, 5
-            mov dx, $0002
-            call draw_sprite
+            mov     si, sprites
+            mov     cx, 5
 
+.next:      mov     ax, [si+3]      ; ATTR
+            test    ah, $80
+            jne     .nodraw         ; [7] Не рисовать спрайт
+
+            mov     bp, ax
+            shr     bp, 8
+            and     bp, 15          ; BP=Номер палитры [3:0]
+
+            mov     dh, ah
+            shr     dh, 4           ; [4] Зеркальность по X
+            mov     dl, 2           ; Здесь прозрачный цвет =2
+
+            mov     ah, 0
+            or      al, $40         ; ID тайла
+
+            push    si cx
+            mov     di, [si+2]      ; Y
+            mov     si, [si]        ; X
+            and     di, 255
+            call    draw_sprite
+            pop     cx si
+
+.nodraw:    add     si, 5
+            loop    .next
 
             ret
 
@@ -230,32 +250,4 @@ update_tile_animation:
             mov     bh, 0
             add     bx, dx
             mov     al, [bx]
-            ret
-
-; Перехват таймера
-; ----------------------------------------------------------------------
-
-int8_timer:
-
-            cli
-
-            ; Перепрограммирование таймера
-            ; Модулятор 1193181 / HZ = число
-            ; 47727 = 25 герц
-            mov     al, 0x6F
-            out     $40, al         ; low
-            mov     al, 0xBA
-            out     $40, al         ; high
-
-            push    ds
-            xor     ax, ax
-            mov     ds, ax
-            mov     ax, [4*8]
-            mov     [0xff*4], ax
-            mov     ax, [4*8+2]
-            mov     [0xff*4+2], ax      ; Переместить таймер на INT FFh
-            mov     [4*8], word clock
-            mov     [4*8+2], cs         ; Назначить новый таймер
-            pop     ds
-            sti
             ret
