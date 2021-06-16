@@ -58,7 +58,7 @@ refresh:
 
             ; Рисование тайла на экране
             push    dx
-            mov     dl, 4
+            mov     dx, $0004
             call    draw_sprite
             pop     dx
 
@@ -74,11 +74,27 @@ refresh:
             popa
             ret
 
-; Нарисовать:
-; * ax - номер тайла (0..511)
-; * si, di - позиция на экране
-; * bp - номер палитры
-; * dl - номер прозрачного цвета
+; Нарисовать все спрайты на экране
+; ----------------------------------------------------------------------
+redraw_sprite:
+
+            mov ax, 64 + 28
+            mov si, 70
+            mov di, 0
+            mov bp, 5
+            mov dx, $0002
+            call draw_sprite
+
+
+            ret
+
+; ----------------------------------------------------------------------
+; Нарисовать тайл 16 x 16
+; * al      - номер тайла (0..511)
+; * bp      - номер палитры
+; * dl      - номер прозрачного цвета
+; * dh[0]   - слева направо рисуется
+; * si, di  - позиция на экране
 ; ----------------------------------------------------------------------
 draw_sprite:
 
@@ -86,8 +102,13 @@ draw_sprite:
             push    es
             mov     es, [seg_fb]
 
-            shl     bp, 2       ; Получение палитры
+            mov     [.conf], dh ; Конфигурация рисования
+            test    dh, 1
+            je      @f
+            add     si, 16      ; Рисование справа налево
+@@:         shl     bp, 2       ; Получение палитры
             add     bp, current_palette
+            mov     ah, 0
             mov     bx, ax
             shl     bx, 6       ; bx = ax*64
             add     bx, tilemap ; Спрайты и тайлы
@@ -108,16 +129,16 @@ draw_sprite:
             cmp     al, dl
             je      .skip
 
-            ; Вычисление реального цвета
-            add     ax, bp
-            mov     bx, ax
-            mov     al, [bx]
-
             ; Проверка границ
             cmp     si, 320
             jnb     .skip
             cmp     di, 200
             jnb     .skip
+
+            ; Вычисление реального цвета
+            add     ax, bp
+            mov     bx, ax
+            mov     al, [bx]
 
             ; Рисование пикселя
             push    di
@@ -129,7 +150,11 @@ draw_sprite:
             ; Отрисовка 4 пикселей
 .skip:      pop     bx ax
             inc     si
-            dec     cl
+            test    [.conf], byte 1
+            je      @f
+            dec     si
+            dec     si
+@@:         dec     cl
             jne     .next1
 
             ; Следующий BYTE (4 пикселей)
@@ -139,13 +164,18 @@ draw_sprite:
 
             ; Следующая строка
             sub     si, 16
-            inc     di
+            test    [.conf], byte 1
+            je      @f
+            add     si, 32
+@@:         inc     di
             dec     ch
             jne     .next3
 
             pop     es
             popa
             ret
+
+.conf:      db      0
 
 ; Отрисовка фреймбуфера на экране
 ; ----------------------------------------------------------------------

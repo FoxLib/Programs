@@ -40,6 +40,7 @@ clock:  int     255
 
         ; Перерисовка уровня
         call    refresh
+        call    redraw_sprite
         call    flip
 
         ;add     word [scroll_x], 1
