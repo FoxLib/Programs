@@ -251,3 +251,44 @@ update_tile_animation:
             add     bx, dx
             mov     al, [bx]
             ret
+
+; Переназначить клавиатуру
+; ----------------------------------------------------------------------
+irq1_set:
+            ; Назначить новое прерывание
+            push    ds
+            mov     ax, 0
+            mov     ds, ax
+            mov     [4*9], word kbd
+            mov     [4*9+2], cs
+            pop     ds
+
+            ; Очистить буфер
+            mov     di, keyboard
+            mov     cx, 64
+            xor     ax, ax
+            rep     stosw
+            ret
+
+; Получение кодов нажатых клавиш в данный момент
+; ----------------------------------------------------------------------
+
+kbd:        push    ax bx
+            in      al, $60
+test al, $80
+jne  @f
+;int3
+@@:
+            ; Состояние нажатых сканкодов
+            mov     bh, 0
+            mov     bl, al
+            and     bl, 0x7F
+            add     al, al      ; CF=1 если старший флаг 1
+            sbb     al, al      ; A=1 если нажата, A=0 если отпущена
+            xor     al, $ff
+            mov     [keyboard+bx], al
+
+            mov     al, $20
+            out     $20, al
+            pop     bx ax
+            iret

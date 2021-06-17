@@ -1,4 +1,6 @@
 
+MIDDLE_X        equ     0xA0
+
 TILE_BRICK      equ     1
 TILE_LADDER     equ     2
 TILE_GOLD       equ     3

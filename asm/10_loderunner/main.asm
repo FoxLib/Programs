@@ -7,6 +7,9 @@ include "macro.asm"
         mov     ax, $0013
         int     10h
 
+        ; Переназначить IRQ#1 (Клавиатура)
+        call    irq1_set
+
         ; Перепрограммирование таймера
         ; Модулятор 1193181 / HZ = число
         ; 47727 = 25 герц
@@ -26,31 +29,28 @@ include "macro.asm"
 main:   mov     ah, 0
         int     1Ah
         cmp     [clock_time], dx
-        je      .keyb
+        je      .next
         mov     [clock_time], dx
         call    clock
 
-        ; Проверка нажатия клавиши
-.keyb:  mov     ah, 1
-        int     16h
-        je      main
-        cmp     ax, $011B
-        je      exit
+.next:  ; Нажатие на клавишу ESC
+        cmp     [keyboard+1], byte 0
+        jne     exit
 
-        int3
+        ;int3
         jmp     main
 
-exit:
-        ; Восстановить таймер
+exit:   ; Восстановить таймер
         xor     ax, ax
         out     $40, al
         out     $40, al
+
+        ; Восстановить IRQ#1
         int     20h
 
 ; Обработка событий каждые 1/18 секунды
 ; ----------------------------------------------------------------------
 clock:
-        pusha
 
         ; Обновление анимации лестницы
         mov     cx, 0x0410
@@ -66,18 +66,20 @@ clock:
         call    update_tile_animation
         mov     [current_palette + 4*4 + 2], al ; 4-золото
 
+        ; Движения
+        call    player_move
+
         ; Перерисовка уровня
         call    refresh
         call    redraw_sprite
         call    flip
 
         ;add     word [scroll_x], 1
-
-        popa
         ret
 
 ; ----------------------------------------------------------------------
 include "proc.asm"
+include "move.asm"
 include "imgdata.asm"
 
 ; Карта уровней
