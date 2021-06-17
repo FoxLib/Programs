@@ -14,6 +14,7 @@ seg_a000            dw      0xA000
 
 player_counter      db      0
 player_anim_state   db      0
+player_on_ladder    db      0
 
 ; Значение текущего скроллинга
 ; ----------------------------------------------------------------------
