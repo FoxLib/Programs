@@ -12,6 +12,7 @@ player_move:
             cmp     [keyboard+0x4B], byte 0
             jne     move_left
 
+.nomove:
             mov     [player_anim_state], 0      ; Сброс анимации бега
             mov     [sprites+3], byte 18        ; IDLE
             ret
@@ -20,6 +21,14 @@ player_move:
 ; ----------------------------------------------------------------------
 move_right:
 
+            ; Проверка на наличие предметов впереди
+            call    get_player_xy
+            cmp     [bx+1], byte TILE_BRICK
+            je      player_move.nomove
+            cmp     [bx+1], byte TILE_IRON
+            je      player_move.nomove
+
+            ; Включение анимации бега
             call    anim_run
             mov     [sprites+3], al
 
@@ -46,6 +55,13 @@ move_right:
 ; Движение влево
 ; ----------------------------------------------------------------------
 move_left:
+
+            ; Проверка на наличие предметов впереди
+            call    get_player_xy
+            cmp     [bx], byte TILE_BRICK
+            je      player_move.nomove
+            cmp     [bx], byte TILE_IRON
+            je      player_move.nomove
 
             call    anim_run
             mov     [sprites+3], al
